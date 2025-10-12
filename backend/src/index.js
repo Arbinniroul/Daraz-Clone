@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import express from "express";
 import prisma from "./db/connection.js";
+import authRoutes from "./routes/authRoutes.js";
 
 dotenv.config();
 
@@ -66,6 +67,8 @@ app.get("/api/test", (req, res) => {
         timestamp: new Date().toISOString(),
     });
 });
+
+app.use("/api/auth", authRoutes);
 
 // Start the server
 app.listen(PORT, async () => {

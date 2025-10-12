@@ -11,11 +11,15 @@
     "author": "",
     "license": "ISC",
     "description": "",
+    "type": "module",
     "dependencies": {
+        "@prisma/client": "^6.17.1",
         "cors": "^2.8.5",
         "express": "^5.1.0",
         "helmet": "^8.1.0",
-        "morgan": "^1.10.1"
+        "mongoose": "^8.19.1",
+        "morgan": "^1.10.1",
+        "prisma": "^6.17.1"
     },
     "devDependencies": {
         "nodemon": "^3.1.10"

@@ -1,0 +1,235 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  email     String   @unique
+  password  String
+  username  String   @unique
+  phone     String?
+  role      UserRole @default(CUSTOMER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  profile   UserProfile?
+  addresses Address[]
+  cart      Cart?
+  orders    Order[]
+  reviews   Review[]
+  payments  Payment[]
+
+  // Seller specific (if user becomes seller)
+  sellerProfile SellerProfile?
+  products      Product[]      @relation("UserProducts")
+
+  @@map("users")
+}
+
+model UserProfile {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  firstName   String?
+  lastName    String?
+  avatar      String?
+  dateOfBirth DateTime?
+  userId      String    @unique @db.ObjectId
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_profiles")
+}
+
+model SellerProfile {
+  id               String    @id @default(auto()) @map("_id") @db.ObjectId
+  storeName        String    @unique
+  storeDescription String?
+  businessEmail    String?
+  businessPhone    String?
+  isVerified       Boolean   @default(false)
+  rating           Float?    @default(0)
+  userId           String    @unique @db.ObjectId
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  products         Product[] @relation("SellerProducts")
+
+  @@map("seller_profiles")
+}
+
+model Address {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  street    String
+  city      String
+  state     String
+  country   String
+  zipCode   String
+  isDefault Boolean @default(false)
+  userId    String  @db.ObjectId
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders    Order[]
+
+  @@map("addresses")
+}
+
+model Product {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String?
+  price       Float
+  images      String[]
+  categoryId  String   @db.ObjectId
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  // Seller relation
+  sellerId String?        @db.ObjectId
+  seller   SellerProfile? @relation("SellerProducts", fields: [sellerId], references: [id], onDelete: Cascade)
+
+  // User relation (for products created by users)
+  userId String? @db.ObjectId
+  user   User?   @relation("UserProducts", fields: [userId], references: [id], onDelete: Cascade)
+
+  inventory  ProductInventory?
+  reviews    Review[]
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+
+  @@map("products")
+}
+
+model ProductInventory {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  quantity  Int     @default(0)
+  sku       String? @unique
+  productId String  @unique @db.ObjectId
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_inventory")
+}
+
+model Category {
+  id       String     @id @default(auto()) @map("_id") @db.ObjectId
+  name     String     @unique
+  slug     String     @unique
+  parentId String?    @db.ObjectId
+  parent   Category?  @relation("CategoryToCategory", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  children Category[] @relation("CategoryToCategory")
+  products Product[]
+
+  @@map("categories")
+}
+
+model Cart {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String     @unique @db.ObjectId
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@map("carts")
+}
+
+model CartItem {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  quantity  Int     @default(1)
+  cartId    String  @db.ObjectId
+  cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId String  @db.ObjectId
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("cart_items")
+}
+
+model Order {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  orderNumber String      @unique
+  status      OrderStatus @default(PENDING)
+  total       Float
+  userId      String      @db.ObjectId
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  addressId   String      @db.ObjectId
+  address     Address     @relation(fields: [addressId], references: [id], onDelete: Cascade)
+  items       OrderItem[]
+  payments    Payment[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  quantity  Int
+  price     Float
+  orderId   String  @db.ObjectId
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String  @db.ObjectId
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("order_items")
+}
+
+model Review {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  rating    Int // 1-5
+  comment   String?
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String   @db.ObjectId
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@map("reviews")
+}
+
+model Payment {
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  amount        Float
+  status        PaymentStatus @default(PENDING)
+  method        PaymentMethod
+  transactionId String?       @unique
+  userId        String        @db.ObjectId
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orderId       String        @db.ObjectId
+  order         Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  createdAt     DateTime      @default(now())
+
+  @@map("payments")
+}
+
+enum UserRole {
+  CUSTOMER
+  SELLER
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  DEBIT_CARD
+  PAYPAL
+  STRIPE
+  CASH_ON_DELIVERY
+}

@@ -10,7 +10,7 @@ export const auth = async (req, res, next) => {
             });
         }
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || "your_jwt_secret_key");
         req.userId = decoded.userId;
         next();
     } catch (error) {

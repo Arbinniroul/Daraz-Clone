@@ -10,6 +10,13 @@ export const register = async (req, res) => {
     try {
         const { email, password, username, phone } = req.body;
 
+        if (!email || !password || !username) {
+            return res.status(400).json({
+                error: "Email, username and password are required",
+            });
+        }
+
+
         // Check if user exists
         const existingUser = await prisma.user.findFirst({
             where: {
@@ -33,6 +40,7 @@ export const register = async (req, res) => {
                 password: hashedPassword,
                 username,
                 phone,
+                role: "CUSTOMER",
             },
             select: {
                 id: true,

@@ -1,5 +1,8 @@
+import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
+import helmet from "helmet";
+import morgan from "morgan";
 import prisma from "./db/connection.js";
 import authRoutes from "./routes/authRoutes.js";
 
@@ -9,6 +12,17 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Test database connection on startup
+app.use(express.json()); // This parses JSON bodies
+app.use(express.urlencoded({ extended: true })); // This parses URL-encoded bodies
+app.use(helmet());
+app.use(
+    cors({
+        origin: "*",
+        methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+        allowedHeaders: ["Content-Type", "Authorization"],
+    })
+);
+app.use(morgan("dev"));
 async function testConnection() {
     try {
         await prisma.$connect();

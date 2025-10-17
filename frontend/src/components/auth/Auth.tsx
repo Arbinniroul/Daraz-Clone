@@ -19,6 +19,8 @@ import { Input } from "@/components/ui/input";
 import type { UseFormReturn } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import type { AuthSchema } from "@/types";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/store";
 
 
 
@@ -29,7 +31,11 @@ interface AuthProps {
     formSchema: object;
     form: UseFormReturn<AuthSchema>;
 }
+
 const Auth = ({ onSubmit, isAuthValue, setIsAuthValue, form }: AuthProps) => {
+       const { isLoading } = useSelector(
+           (state: RootState) => state.auth
+       );
     return (
         <div>
             <Dialog
@@ -82,13 +88,15 @@ const Auth = ({ onSubmit, isAuthValue, setIsAuthValue, form }: AuthProps) => {
                                         <span className="text-sm cursor-pointer text-muted-foreground ml-60 mb-20 ">
                                             forgot password?
                                         </span>
+                                        <Button
+                                            type="submit"
+                                            className="w-full bg-[#f75506] h-11 text-semi-bold text-white text-[15px] hover:bg-[#f75506] hover:opacity-80 cursor-pointer"
+                                            disabled={isLoading}
+                                        >
+                                            LOGIN
+                                        </Button>
                                     </form>
-                                    <Button
-                                        type="submit"
-                                        className="bg-[#f75506] h-11 text-semi-bold text-white text-[15px] hover:bg-[#f75506] hover:opacity-80 cursor-pointer"
-                                    >
-                                        LOGIN
-                                    </Button>
+
                                     <div className="text-center mt-1">
                                         <span>
                                             Dont have an account?{" "}
@@ -186,6 +194,7 @@ const Auth = ({ onSubmit, isAuthValue, setIsAuthValue, form }: AuthProps) => {
                                         <Button
                                             type="submit"
                                             className="bg-[#f75506] w-full h-11 text-semi-bold text-white text-[15px] hover:bg-[#f75506] hover:opacity-80 cursor-pointer"
+                                            disabled={isLoading}
                                         >
                                             SIGNUP
                                         </Button>

@@ -1,18 +1,36 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Search, ShoppingCartIcon } from "lucide-react";
-import {  useState } from "react";
+import {
+    Box,
+    LogOut,
+    Search,
+    ShoppingCartIcon,
+    Smile,
+    StarIcon,
+} from "lucide-react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 
-
-import { useNavigate } from "react-router-dom";
-import Auth from "./auth/Auth";
+import type { AppDispatch, RootState } from "@/store";
+import { loginUser, registerUser } from "@/store/thunks/authThunks";
 import { authSchema, type AuthSchema } from "@/types";
+import { useDispatch, useSelector } from "react-redux";
 
+import { logout } from "@/store/slices/authSlice";
+import Auth from "./auth/Auth";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 
 const Navbar = () => {
-    const navigate = useNavigate();
     const [isAuthValue, setIsAuthValue] = useState("");
-    
+    const dispatch = useDispatch<AppDispatch>();
+
+    const { isAuthenticated, user, token, isLoading, error } = useSelector(
+        (state: RootState) => state.auth
+    );
     const form = useForm<AuthSchema>({
         resolver: zodResolver(authSchema),
         defaultValues: {
@@ -22,43 +40,74 @@ const Navbar = () => {
             password: "",
         },
     });
-
     async function onSubmit(values: AuthSchema) {
-        if (isAuthValue === "signup") {
-            // Handle login logic here
-            const response = await fetch(
-                "http://localhost:3000/api/auth/register",
-                {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(values),
-                }
-            );
-            const data = await response.json();
-            const token = data.token;
-            localStorage.setItem("token", token);
-            if (response.ok) {
+        try {
+            if (isAuthValue === "signup") {
+                await dispatch(registerUser(values)).unwrap();
                 setIsAuthValue("");
-                navigate("/");
-            }
-            console.log("Signup response:", data);
-            console.log("Logging in with:", values);
-        } else {
-            // Handle signup logic here
+            } else {
+                await dispatch(
+                    loginUser({
+                        email: values.email,
+                        password: values.password,
+                    })
+                ).unwrap();
+                setIsAuthValue("");
 
-            console.log("Signing up with:", values);
+                console.log("Login successful");
+            }
+        } catch (error) {
+            console.error("Authentication failed:", error);
         }
     }
     return (
         <div className="min-w-7xl bg-[#f75506] h-30 ">
             <nav className="max-w-7xl mx-auto flex items-center justify-end px-4">
-                <ul className="flex space-x-6 text-white font-semibold cursor-pointer py-2">
-                    <li>Save More On App</li>
-                    <li>Become a Seller</li>
-                    <li>Help and Support</li>
+                <ul className="flex space-x-6 text-white  text-xs cursor-pointer py-2">
+                    <li>SAVE MORE ON APP</li>
+                    <li>BECOME A SELLER</li>
+                    <li>HELP & SUPPORT</li>
 
-                    <li onClick={() => setIsAuthValue("login")}>LOGIN</li>
-                    <li onClick={() => setIsAuthValue("signup")}>SIGNUP</li>
+                    {isAuthenticated ? (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger>
+                                <li className="cursor-pointer">
+                                    {" "}
+                                    {user?.username}'s Account
+                                </li>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="px-4 py-4 ">
+                                <DropdownMenuItem>
+                                    <Smile className="size-6" /> Manage My
+                                    Account{" "}
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                    {" "}
+                                    <Box className="size-6" />
+                                    My Orders
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                    <StarIcon className="size-6" />
+                                    My Reviews
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                    <LogOut className="size-6" />
+                                    <li onClick={() => dispatch(logout())}>
+                                        Logout
+                                    </li>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    ) : (
+                        <>
+                            <li onClick={() => setIsAuthValue("login")}>
+                                LOGIN
+                            </li>
+                            <li onClick={() => setIsAuthValue("signup")}>
+                                SIGNUP
+                            </li>
+                        </>
+                    )}
                 </ul>
             </nav>
             <div className="max-w-7xl flex  items-center  sm:mx-4 md:mx-20 mx-0 lg:mx-40 px-4 py-3">

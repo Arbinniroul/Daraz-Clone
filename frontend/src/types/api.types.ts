@@ -1,5 +1,5 @@
 // Standard API response format
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
     success: boolean;
     data?: T;
     message?: string;
@@ -17,7 +17,7 @@ export interface ApiResponse<T = any> {
 export interface ApiError {
     error: string;
     code: string;
-    details?: any;
+    details?: unknown;
     timestamp?: string;
 }
 
@@ -32,5 +32,5 @@ export interface PaginationParams {
 // Search parameters
 export interface SearchParams extends PaginationParams {
     query?: string;
-    filters?: Record<string, any>;
+    filters?: Record<string, unknown>;
 }

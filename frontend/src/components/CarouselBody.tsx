@@ -2,7 +2,7 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 
 
-const CarouselBody = () => {
+const CarouselBody = (props) => {
     const [currentIndex, setCurrentIndex] = useState(0);
   
 

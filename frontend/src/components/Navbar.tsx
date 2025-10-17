@@ -1,58 +1,54 @@
-import { Search, ShoppingCartIcon } from "lucide-react";
-import {
-    Dialog,
-    DialogContent,
-
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogClose
-
-} from "@/components/ui/dialog";
-import { useState } from "react";
-import { Input } from "./ui/input";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Search, ShoppingCartIcon } from "lucide-react";
+import {  useState } from "react";
+import { useForm } from "react-hook-form";
 
-import { Form, FormControl, FormField, FormItem, FormMessage } from "./ui/form";
-import { Button } from "./ui/button";
+
+import { useNavigate } from "react-router-dom";
+import Auth from "./auth/Auth";
+import { authSchema, type AuthSchema } from "@/types";
 
 
 const Navbar = () => {
-        const [isAuthValue, setIsAuthValue] = useState("");
-      
-       
-        const formSchema = z.object({
-            name: z.string().min(2, {
-                message: "Name must be at least 2 characters.",
-            }), 
-            number: z.string().min(10, {
-                message: "Number must be at least 10 characters.",
-            }),
-            email: z.string().min(2, {
-                message: "Username must be at least 2 characters.",
-            }),
-            password: z.string().min(6, {
-                message: "Password must be at least 6 characters.",
-            }),
+    const navigate = useNavigate();
+    const [isAuthValue, setIsAuthValue] = useState("");
+    
+    const form = useForm<AuthSchema>({
+        resolver: zodResolver(authSchema),
+        defaultValues: {
+            username: "",
+            phone: "",
+            email: "",
+            password: "",
+        },
+    });
 
-        });
-   const form = useForm<z.infer<typeof formSchema>>({
-       resolver: zodResolver (formSchema),
-       defaultValues: {
-           name: "",
-           number:"",
-           email: "",
-           password: "",
-       },
-   });
-   
-      function onSubmit(values: z.infer<typeof formSchema>) {
-          // Do something with the form values.
-          // ✅ This will be type-safe and validated.
-          console.log(values);
-      }
+    async function onSubmit(values: AuthSchema) {
+        if (isAuthValue === "signup") {
+            // Handle login logic here
+            const response = await fetch(
+                "http://localhost:3000/api/auth/register",
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(values),
+                }
+            );
+            const data = await response.json();
+            const token = data.token;
+            localStorage.setItem("token", token);
+            if (response.ok) {
+                setIsAuthValue("");
+                navigate("/");
+            }
+            console.log("Signup response:", data);
+            console.log("Logging in with:", values);
+        } else {
+            // Handle signup logic here
+
+            console.log("Signing up with:", values);
+        }
+    }
     return (
         <div className="min-w-7xl bg-[#f75506] h-30 ">
             <nav className="max-w-7xl mx-auto flex items-center justify-end px-4">
@@ -88,188 +84,13 @@ const Navbar = () => {
                     </div>
                 </div>
             </div>
-            <Dialog
-                open={isAuthValue === "login" || isAuthValue === "signup"}
-                onOpenChange={() => setIsAuthValue("")}
-            >
-                <DialogContent className="sm:max-w-[425px] bg-[#ffffff] border-none">
-                    {isAuthValue === "login" ? (
-                        <div>
-                            <DialogHeader>
-                                <DialogTitle>Login</DialogTitle>
-
-                                <Form {...form}>
-                                    <form
-                                        onSubmit={form.handleSubmit(onSubmit)}
-                                        className="space-y-2"
-                                    >
-                                        <FormField
-                                            control={form.control}
-                                            name="email"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormControl>
-                                                        <Input
-                                                            placeholder="Enter your email"
-                                                            {...field}
-                                                        />
-                                                    </FormControl>
-
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <FormField
-                                            control={form.control}
-                                            name="password"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormControl>
-                                                        <Input
-                                                            placeholder="Enter your password"
-                                                            {...field}
-                                                        />
-                                                    </FormControl>
-
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <span className="text-sm cursor-pointer text-muted-foreground ml-60 mb-20 ">
-                                            forgot password?
-                                        </span>
-                                    </form>
-                                    <Button
-                                        type="submit"
-                                        className="bg-[#f75506] h-11 text-semi-bold text-white text-[15px] hover:bg-[#f75506] hover:opacity-80 cursor-pointer"
-                                    >
-                                        LOGIN
-                                    </Button>
-                                    <div className="text-center mt-1">
-                                        <span>
-                                            Dont have an account?{" "}
-                                            <span
-                                                className="text-[#f75506] cursor-pointer"
-                                                onClick={() =>
-                                                    setIsAuthValue("signup")
-                                                }
-                                            >
-                                                Sign Up
-                                            </span>
-                                        </span>
-                                    </div>
-                                </Form>
-                            </DialogHeader>
-                            <div className="grid gap-4"></div>
-                            <DialogFooter>
-                                <DialogClose asChild></DialogClose>
-                            </DialogFooter>
-                        </div>
-                    ) : (
-                        <div>
-                            <DialogHeader>
-                                <DialogTitle>Signup</DialogTitle>
-
-                                <Form {...form}>
-                                    <form
-                                        onSubmit={form.handleSubmit(onSubmit)}
-                                        className="space-y-2"
-                                    >
-                                        <FormField
-                                            control={form.control}
-                                            name="name"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormControl>
-                                                        <Input
-                                                            placeholder="Enter your name"
-                                                            {...field}
-                                                        />
-                                                    </FormControl>
-
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <FormField
-                                            control={form.control}
-                                            name="email"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormControl>
-                                                        <Input
-                                                            placeholder="Enter your email"
-                                                            {...field}
-                                                        />
-                                                    </FormControl>
-
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <FormField
-                                            control={form.control}
-                                            name="password"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormControl>
-                                                        <Input
-                                                            placeholder="Enter your password"
-                                                            {...field}
-                                                        />
-                                                    </FormControl>
-
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <FormField
-                                            control={form.control}
-                                            name="number"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormControl>
-                                                        <Input
-                                                            placeholder="Enter your number"
-                                                            {...field}
-                                                        />
-                                                    </FormControl>
-
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                      
-                                    </form>
-                                    <Button
-                                        type="submit"
-                                        className="bg-[#f75506] h-11 text-semi-bold text-white text-[15px] hover:bg-[#f75506] hover:opacity-80 cursor-pointer"
-                                    >
-                                        SIGNUP
-                                    </Button>
-                                    <div className="text-center mt-1">
-                                        <span>
-                                            Already have an account?{" "}
-                                            <span
-                                                className="text-[#f75506] cursor-pointer"
-                                                onClick={() =>
-                                                    setIsAuthValue("login")
-                                                }
-                                            >
-                                               Login
-                                            </span>
-                                        </span>
-                                    </div>
-                                </Form>
-                            </DialogHeader>
-                            <div className="grid gap-4"></div>
-                            <DialogFooter>
-                                <DialogClose asChild></DialogClose>
-                            </DialogFooter>
-                        </div>
-                    )}
-                </DialogContent>
-            </Dialog>
+            <Auth
+                onSubmit={onSubmit}
+                isAuthValue={isAuthValue}
+                setIsAuthValue={setIsAuthValue}
+                form={form}
+                formSchema={authSchema}
+            />
         </div>
     );
 };

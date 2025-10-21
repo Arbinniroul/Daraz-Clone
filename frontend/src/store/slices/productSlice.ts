@@ -1,0 +1,537 @@
+// productSlice.ts
+import type {
+    CreateProductData,
+    CreateProductResponse,
+    FilterState,
+    PaginationInfo,
+    Product,
+    ProductFilters,
+    ProductsResponse,
+    ProductWithPricing,
+    UpdateProductData,
+    UpdateProductResponse,
+    UpdateSaleData,
+} from "@/types";
+import {
+    createAsyncThunk,
+    createSlice,
+    type PayloadAction,
+} from "@reduxjs/toolkit";
+
+// Initial state
+interface ProductState {
+    products: ProductWithPricing[];
+    currentProduct: ProductWithPricing | null;
+    loading: boolean;
+    error: string | null;
+    pagination: PaginationInfo;
+    filters: FilterState;
+}
+
+const initialState: ProductState = {
+    products: [],
+    currentProduct: null,
+    loading: false,
+    error: null,
+    pagination: {
+        page: 1,
+        limit: 10,
+        total: 0,
+        pages: 0,
+    },
+    filters: {
+        page: 1,
+        limit: 10,
+        sortBy: "createdAt",
+        sortOrder: "desc",
+    },
+};
+
+// Utility functions for pricing
+const calculateCurrentPrice = (product: Product): number => {
+    if (product.isOnSale && product.salePrice && isSaleActive(product)) {
+        return product.salePrice;
+    }
+    return product.price;
+};
+
+const isSaleActive = (product: Product): boolean => {
+    if (!product.isOnSale) return false;
+    if (!product.saleStart && !product.saleEnd) return true;
+
+    const now = new Date();
+    const startValid = !product.saleStart || new Date(product.saleStart) <= now;
+    const endValid = !product.saleEnd || new Date(product.saleEnd) >= now;
+
+    return startValid && endValid;
+};
+
+const calculateSavings = (
+    product: Product
+): { amount: number; percentage: number } => {
+    const currentPrice = calculateCurrentPrice(product);
+    const savingsAmount = product.price - currentPrice;
+    const savingsPercentage =
+        product.discount ?? (savingsAmount / product.price) * 100;
+
+    return {
+        amount: savingsAmount,
+        percentage: savingsPercentage,
+    };
+};
+
+const enhanceProductWithPricing = (product: Product): ProductWithPricing => {
+    const isActiveSale = isSaleActive(product);
+    const currentPrice = calculateCurrentPrice(product);
+    const savings = calculateSavings(product);
+
+    return {
+        ...product,
+        currentPrice,
+        isSaleActive: isActiveSale,
+        savingsAmount: isActiveSale ? savings.amount : undefined,
+        savingsPercentage: isActiveSale ? savings.percentage : undefined,
+    };
+};
+
+// Async thunks with proper typing
+export const createProduct = createAsyncThunk<
+    ProductWithPricing, // Return type
+    CreateProductData, // Argument type
+    { rejectValue: string } // Reject value type
+>(
+    "products/create",
+    async (productData: CreateProductData, { rejectWithValue }) => {
+        try {
+            const response = await fetch("/api/products", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(productData),
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                return rejectWithValue(
+                    error.message || "Failed to create product"
+                );
+            }
+
+            const data: CreateProductResponse = await response.json();
+            return enhanceProductWithPricing(data.product);
+        } catch (error: unknown) {
+            return rejectWithValue(
+                error instanceof Error
+                    ? error.message
+                    : "Failed to create product"
+            );
+        }
+    }
+);
+
+export const fetchProducts = createAsyncThunk<
+    ProductsResponse, // Return type
+    ProductFilters, // Argument type
+    { rejectValue: string } // Reject value type
+>(
+    "products/fetchAll",
+    async (filters: ProductFilters = {}, { rejectWithValue }) => {
+        try {
+            const queryParams = new URLSearchParams();
+
+            Object.entries(filters).forEach(([key, value]) => {
+                if (value !== undefined && value !== null && value !== "") {
+                    queryParams.append(key, value.toString());
+                }
+            });
+
+            const response = await fetch(
+                `http://localhost:3000/api/products/fetchProducts?${queryParams}`
+            );
+
+            if (!response.ok) {
+                const error = await response.json();
+                return rejectWithValue(
+                    error.message || "Failed to fetch products"
+                );
+            }
+
+            const data: ProductsResponse = await response.json();
+            return {
+                ...data,
+                products: data.products.map(enhanceProductWithPricing),
+            };
+        } catch (error: unknown) {
+            return rejectWithValue(
+                error instanceof Error
+                    ? error.message
+                    : "Failed to fetch products"
+            );
+        }
+    }
+);
+
+export const fetchProduct = createAsyncThunk<
+    ProductWithPricing, // Return type
+    string, // Argument type (productId)
+    { rejectValue: string } // Reject value type
+>("products/fetchOne", async (productId: string, { rejectWithValue }) => {
+    try {
+        const response = await fetch(
+            `http://localhost:3000/api/products/${productId}`
+        );
+
+        if (!response.ok) {
+            const error = await response.json();
+            return rejectWithValue(error.message || "Failed to fetch product");
+        }
+
+        const data: { product: Product } = await response.json();
+        return enhanceProductWithPricing(data.product);
+    } catch (error: unknown) {
+        return rejectWithValue(
+            error instanceof Error ? error.message : "Failed to fetch product"
+        );
+    }
+});
+
+export const updateProduct = createAsyncThunk<
+    ProductWithPricing, // Return type
+    UpdateProductData, // Argument type
+    { rejectValue: string } // Reject value type
+>(
+    "products/update",
+    async (updateData: UpdateProductData, { rejectWithValue }) => {
+        try {
+            const { id, ...data } = updateData;
+            const response = await fetch(`/api/products/${id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                return rejectWithValue(
+                    error.message || "Failed to update product"
+                );
+            }
+
+            const result: UpdateProductResponse = await response.json();
+            return enhanceProductWithPricing(result.product);
+        } catch (error: unknown) {
+            return rejectWithValue(
+                error instanceof Error
+                    ? error.message
+                    : "Failed to update product"
+            );
+        }
+    }
+);
+
+export const updateProductSale = createAsyncThunk<
+    ProductWithPricing, // Return type
+    { id: string; saleData: UpdateSaleData }, // Argument type
+    { rejectValue: string } // Reject value type
+>(
+    "products/updateSale",
+    async (
+        { id, saleData }: { id: string; saleData: UpdateSaleData },
+        { rejectWithValue }
+    ) => {
+        try {
+            const response = await fetch(`/api/products/${id}/sale`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(saleData),
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                return rejectWithValue(
+                    error.message || "Failed to update product sale"
+                );
+            }
+
+            const result: UpdateProductResponse = await response.json();
+            return enhanceProductWithPricing(result.product);
+        } catch (error: unknown) {
+            return rejectWithValue(
+                error instanceof Error
+                    ? error.message
+                    : "Failed to update product sale"
+            );
+        }
+    }
+);
+
+// In your productSlice.ts - update the fetchSaleProducts async thunk
+export const fetchSaleProducts = createAsyncThunk<
+    ProductsResponse,
+    { page?: number; limit?: number; discountMin?: number },
+    { rejectValue: string }
+>(
+    "products/fetchSale",
+    async (
+        filters: { page?: number; limit?: number; discountMin?: number } = {},
+        { rejectWithValue }
+    ) => {
+        try {
+            const queryParams = new URLSearchParams();
+
+            Object.entries(filters).forEach(([key, value]) => {
+                if (value !== undefined && value !== null) {
+                    queryParams.append(key, value.toString());
+                }
+            });
+
+            const apiUrl = `http://localhost:3000/api/products/sale/products`;
+            console.log("Fetching from:", apiUrl); // Debug log
+
+            const response = await fetch(apiUrl);
+
+            console.log("Response status:", response.status);
+            console.log("Response headers:", response.headers);
+
+            const responseText = await response.text();
+            console.log("Raw response:", responseText);
+
+            if (!response.ok) {
+                console.log("Response not OK, status:", response.status);
+
+                let errorMessage = `HTTP error! status: ${response.status}`;
+                try {
+                    const errorData = JSON.parse(responseText);
+                    errorMessage = errorData.message || errorMessage;
+                } catch (error: unknown) {
+                    errorMessage =
+                        responseText ||
+                        errorMessage ||
+                        (error as Error).message;
+                }
+                return rejectWithValue(errorMessage);
+            }
+
+            // Now try to parse the successful response as JSON
+            let data;
+            try {
+                data = JSON.parse(responseText);
+            } catch (e) {
+                console.error("Failed to parse JSON:", e);
+                console.error("Response that failed to parse:", responseText);
+                return rejectWithValue("Invalid JSON response from server");
+            }
+
+            return {
+                ...data,
+                products: data.products.map(enhanceProductWithPricing),
+            };
+        } catch (error: unknown) {
+            console.error("Fetch error:", error);
+            return rejectWithValue(
+                error instanceof Error
+                    ? error.message
+                    : "Failed to fetch sale products"
+            );
+        }
+    }
+);
+
+// Product slice
+const productSlice = createSlice({
+    name: "products",
+    initialState,
+    reducers: {
+        clearError: (state) => {
+            state.error = null;
+        },
+        clearCurrentProduct: (state) => {
+            state.currentProduct = null;
+        },
+        setFilters: (state, action: PayloadAction<ProductFilters>) => {
+            state.filters = { ...state.filters, ...action.payload };
+        },
+        clearFilters: (state) => {
+            state.filters = {
+                page: 1,
+                limit: 10,
+                sortBy: "createdAt",
+                sortOrder: "desc",
+            };
+        },
+        resetProductState: (state) => {
+            state.products = [];
+            state.currentProduct = null;
+            state.loading = false;
+            state.error = null;
+            state.pagination = {
+                page: 1,
+                limit: 10,
+                total: 0,
+                pages: 0,
+            };
+            state.filters = {
+                page: 1,
+                limit: 10,
+                sortBy: "createdAt",
+                sortOrder: "desc",
+            };
+        },
+        // Additional useful reducers
+        removeProduct: (state, action: PayloadAction<string>) => {
+            state.products = state.products.filter(
+                (product) => product.id !== action.payload
+            );
+            if (state.currentProduct?.id === action.payload) {
+                state.currentProduct = null;
+            }
+        },
+        updateProductQuantity: (
+            state,
+            action: PayloadAction<{ productId: string; quantity: number }>
+        ) => {
+            const product = state.products.find(
+                (p) => p.id === action.payload.productId
+            );
+            if (product?.inventory) {
+                product.inventory.quantity = action.payload.quantity;
+            }
+            if (
+                state.currentProduct?.id === action.payload.productId &&
+                state.currentProduct.inventory
+            ) {
+                state.currentProduct.inventory.quantity =
+                    action.payload.quantity;
+            }
+        },
+    },
+    extraReducers: (builder) => {
+        builder
+            // Create Product
+            .addCase(createProduct.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(createProduct.fulfilled, (state, action) => {
+                state.loading = false;
+                state.products.unshift(action.payload);
+            })
+            .addCase(createProduct.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload ?? "Failed to create product";
+            })
+
+            // Fetch Products
+            .addCase(fetchProducts.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(fetchProducts.fulfilled, (state, action) => {
+                state.loading = false;
+                state.products = action.payload.products;
+                state.pagination = action.payload.pagination;
+            })
+            .addCase(fetchProducts.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload ?? "Failed to fetch products";
+            })
+
+            // Fetch Single Product
+            .addCase(fetchProduct.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(fetchProduct.fulfilled, (state, action) => {
+                state.loading = false;
+                state.currentProduct = action.payload;
+            })
+            .addCase(fetchProduct.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload ?? "Failed to fetch product";
+            })
+
+            // Update Product
+            .addCase(updateProduct.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(updateProduct.fulfilled, (state, action) => {
+                state.loading = false;
+                const updatedProduct = action.payload;
+                const index = state.products.findIndex(
+                    (p) => p.id === updatedProduct.id
+                );
+                if (index !== -1) {
+                    state.products[index] = updatedProduct;
+                }
+                if (
+                    state.currentProduct &&
+                    state.currentProduct.id === updatedProduct.id
+                ) {
+                    state.currentProduct = updatedProduct;
+                }
+            })
+            .addCase(updateProduct.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload ?? "Failed to update product";
+            })
+
+            // Update Product Sale
+            .addCase(updateProductSale.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(updateProductSale.fulfilled, (state, action) => {
+                state.loading = false;
+                const updatedProduct = action.payload;
+                const index = state.products.findIndex(
+                    (p) => p.id === updatedProduct.id
+                );
+                if (index !== -1) {
+                    state.products[index] = updatedProduct;
+                }
+                if (
+                    state.currentProduct &&
+                    state.currentProduct.id === updatedProduct.id
+                ) {
+                    state.currentProduct = updatedProduct;
+                }
+            })
+            .addCase(updateProductSale.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload ?? "Failed to update product sale";
+            })
+
+            // Fetch Sale Products
+            .addCase(fetchSaleProducts.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(fetchSaleProducts.fulfilled, (state, action) => {
+                state.loading = false;
+                state.products = action.payload.products;
+                state.pagination = action.payload.pagination;
+            })
+            .addCase(fetchSaleProducts.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload ?? "Failed to fetch sale products";
+            });
+    },
+});
+
+export const {
+    clearError,
+    clearCurrentProduct,
+    setFilters,
+    clearFilters,
+    resetProductState,
+    removeProduct,
+    updateProductQuantity,
+} = productSlice.actions;
+
+export default productSlice.reducer;

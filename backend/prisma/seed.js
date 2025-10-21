@@ -1,5 +1,5 @@
 // prisma/seed.js
-import {PrismaClient} from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -21,6 +21,30 @@ const categories = [
     { id: "661c0a1e4f8a9b2c3d4e5f07", name: "Toys", slug: "toys" },
 ];
 
+// Create some seller profiles first
+const sellerProfiles = [
+    {
+        id: "661c0c1e4f8a9b2c3d4e5f99",
+        storeName: "TechStore",
+        storeDescription: "Your one-stop shop for electronics",
+        businessEmail: "tech@example.com",
+        businessPhone: "+1234567890",
+        isVerified: true,
+        rating: 4.5,
+        userId: "661c0d1e4f8a9b2c3d4e5f88", // You need to create a user first
+    },
+    {
+        id: "661c0c1e4f8a9b2c3d4e5f98",
+        storeName: "FashionHub",
+        storeDescription: "Trendy clothing for everyone",
+        businessEmail: "fashion@example.com",
+        businessPhone: "+1234567891",
+        isVerified: true,
+        rating: 4.3,
+        userId: "661c0d1e4f8a9b2c3d4e5f89",
+    },
+];
+
 const products = [
     // Electronics with sales
     {
@@ -32,14 +56,20 @@ const products = [
         salePrice: 899.99,
         discount: 10,
         isOnSale: true,
-        saleStart: new Date("2024-01-01"),
-        saleEnd: new Date("2024-12-31"),
+        saleStart: new Date("2025-01-01"),
+        saleEnd: new Date("2025-12-31"),
         images: [
-            "https://example.com/iphone15-1.jpg",
-            "https://example.com/iphone15-2.jpg",
+            "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400",
         ],
         categoryId: "661c0a1e4f8a9b2c3d4e5f01",
         sellerId: "661c0c1e4f8a9b2c3d4e5f99",
+        inventory: {
+            create: {
+                id: "661c0b2e4f8a9b2c3d4e5f31",
+                quantity: 50,
+                sku: "IPHONE15PRO-001",
+            },
+        },
     },
     {
         id: "661c0b2e4f8a9b2c3d4e5f12",
@@ -49,9 +79,18 @@ const products = [
         salePrice: 749.99,
         discount: 12,
         isOnSale: true,
-        images: ["https://example.com/galaxy-s24-1.jpg"],
+        images: [
+            "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400",
+        ],
         categoryId: "661c0a1e4f8a9b2c3d4e5f01",
         sellerId: "661c0c1e4f8a9b2c3d4e5f99",
+        inventory: {
+            create: {
+                id: "661c0b2e4f8a9b2c3d4e5f32",
+                quantity: 30,
+                sku: "SGS24-001",
+            },
+        },
     },
     {
         id: "661c0b2e4f8a9b2c3d4e5f13",
@@ -59,13 +98,21 @@ const products = [
         description:
             "Lightweight laptop with Apple M3 chip for ultimate performance",
         price: 1299.99,
-        // No sale - regular price
-        isOnSale: false,
+        salePrice: 1099.99,
+        discount: 15,
+        isOnSale: true,
         images: [
-            "https://example.com/macbook-air-1.jpg",
-            "https://example.com/macbook-air-2.jpg",
+            "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=400",
         ],
         categoryId: "661c0a1e4f8a9b2c3d4e5f01",
+        sellerId: "661c0c1e4f8a9b2c3d4e5f99",
+        inventory: {
+            create: {
+                id: "661c0b2e4f8a9b2c3d4e5f33",
+                quantity: 25,
+                sku: "MBAM3-001",
+            },
+        },
     },
     {
         id: "661c0b2e4f8a9b2c3d4e5f14",
@@ -75,18 +122,39 @@ const products = [
         salePrice: 349.99,
         discount: 13,
         isOnSale: true,
-        images: ["https://example.com/sony-headphones-1.jpg"],
+        images: [
+            "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400",
+        ],
         categoryId: "661c0a1e4f8a9b2c3d4e5f01",
+        sellerId: "661c0c1e4f8a9b2c3d4e5f99",
+        inventory: {
+            create: {
+                id: "661c0b2e4f8a9b2c3d4e5f34",
+                quantity: 15,
+                sku: "SONYXM5-001",
+            },
+        },
     },
     {
         id: "661c0b2e4f8a9b2c3d4e5f15",
         name: "iPad Air",
         description: "Versatile tablet with M1 chip and stunning display",
         price: 599.99,
-        // No sale
-        isOnSale: false,
-        images: ["https://example.com/ipad-air-1.jpg"],
+        salePrice: 499.99,
+        discount: 17,
+        isOnSale: true,
+        images: [
+            "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400",
+        ],
         categoryId: "661c0a1e4f8a9b2c3d4e5f01",
+        sellerId: "661c0c1e4f8a9b2c3d4e5f99",
+        inventory: {
+            create: {
+                id: "661c0b2e4f8a9b2c3d4e5f35",
+                quantity: 40,
+                sku: "IPADAIR-001",
+            },
+        },
     },
 
     // Clothing with sales
@@ -98,8 +166,18 @@ const products = [
         salePrice: 120.0,
         discount: 20,
         isOnSale: true,
-        images: ["https://example.com/nike-airmax-1.jpg"],
+        images: [
+            "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400",
+        ],
         categoryId: "661c0a1e4f8a9b2c3d4e5f02",
+        sellerId: "661c0c1e4f8a9b2c3d4e5f98",
+        inventory: {
+            create: {
+                id: "661c0b2e4f8a9b2c3d4e5f36",
+                quantity: 100,
+                sku: "NIKEAM270-001",
+            },
+        },
     },
     {
         id: "661c0b2e4f8a9b2c3d4e5f22",
@@ -109,43 +187,134 @@ const products = [
         salePrice: 69.99,
         discount: 22,
         isOnSale: true,
-        saleStart: new Date("2024-01-15"),
-        saleEnd: new Date("2024-02-15"),
-        images: ["https://example.com/levis-jeans-1.jpg"],
+        saleStart: new Date("2025-01-15"),
+        saleEnd: new Date("2025-02-15"),
+        images: [
+            "https://images.unsplash.com/photo-1542272604-787c3835535d?w=400",
+        ],
         categoryId: "661c0a1e4f8a9b2c3d4e5f02",
+        sellerId: "661c0c1e4f8a9b2c3d4e5f98",
+        inventory: {
+            create: {
+                id: "661c0b2e4f8a9b2c3d4e5f37",
+                quantity: 75,
+                sku: "LEVI501-001",
+            },
+        },
     },
-    // ... continue with other products mixing sale and non-sale items
+    {
+        id: "661c0b2e4f8a9b2c3d4e5f23",
+        name: "Adidas Ultraboost",
+        description: "High-performance running shoes with boost technology",
+        price: 180.0,
+        salePrice: 144.0,
+        discount: 20,
+        isOnSale: true,
+        images: [
+            "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400",
+        ],
+        categoryId: "661c0a1e4f8a9b2c3d4e5f02",
+        sellerId: "661c0c1e4f8a9b2c3d4e5f98",
+        inventory: {
+            create: {
+                id: "661c0b2e4f8a9b2c3d4e5f38",
+                quantity: 60,
+                sku: "ADIDASUB-001",
+            },
+        },
+    },
+    {
+        id: "661c0b2e4f8a9b2c3d4e5f24",
+        name: "Uniqlo Cotton T-Shirt",
+        description: "Soft cotton t-shirt available in multiple colors",
+        price: 14.99,
+        salePrice: 11.99,
+        discount: 20,
+        isOnSale: true,
+        images: [
+            "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400",
+        ],
+        categoryId: "661c0a1e4f8a9b2c3d4e5f02",
+        sellerId: "661c0c1e4f8a9b2c3d4e5f98",
+        inventory: {
+            create: {
+                id: "661c0b2e4f8a9b2c3d4e5f39",
+                quantity: 200,
+                sku: "UNIQLOTS-001",
+            },
+        },
+    },
+    {
+        id: "661c0b2e4f8a9b2c3d4e5f25",
+        name: "North Face Jacket",
+        description: "Waterproof jacket for outdoor activities",
+        price: 199.99,
+        salePrice: 159.99,
+        discount: 20,
+        isOnSale: true,
+        images: [
+            "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400",
+        ],
+        categoryId: "661c0a1e4f8a9b2c3d4e5f02",
+        sellerId: "661c0c1e4f8a9b2c3d4e5f98",
+        inventory: {
+            create: {
+                id: "661c0b2e4f8a9b2c3d4e5f3a",
+                quantity: 35,
+                sku: "TNFJACKET-001",
+            },
+        },
+    },
 ];
 
 async function main() {
     console.log("Start seeding...");
 
-    // Create categories
-    for (const category of categories) {
-        await prisma.category.upsert({
-            where: { id: category.id },
-            update: {},
-            create: category,
-        });
-    }
-    console.log("Created categories");
+    try {
+        // Create categories
+        for (const category of categories) {
+            await prisma.category.upsert({
+                where: { id: category.id },
+                update: {},
+                create: category,
+            });
+        }
+        console.log("✅ Created categories");
 
-    // Create products
-    for (const product of products) {
-        await prisma.product.upsert({
-            where: { id: product.id },
-            update: {},
-            create: product,
-        });
-    }
-    console.log("Created products");
+        // Create products with inventory
+        for (const product of products) {
+            await prisma.product.upsert({
+                where: { id: product.id },
+                update: {},
+                create: {
+                    id: product.id,
+                    name: product.name,
+                    description: product.description,
+                    price: product.price,
+                    salePrice: product.salePrice,
+                    discount: product.discount,
+                    isOnSale: product.isOnSale,
+                    saleStart: product.saleStart,
+                    saleEnd: product.saleEnd,
+                    images: product.images,
+                    categoryId: product.categoryId,
+                    sellerId: product.sellerId,
+                    inventory: product.inventory,
+                },
+            });
+        }
+        console.log("✅ Created products with inventory");
 
-    console.log("Seeding finished.");
+        console.log("🎉 Seeding finished successfully!");
+    } catch (error) {
+        console.error("❌ Seeding error:", error);
+        throw error;
+    }
 }
 
 main()
     .catch((e) => {
-        console.error(e);
+        console.error("💥 Seeding failed:", e);
         process.exit(1);
     })
     .finally(async () => {

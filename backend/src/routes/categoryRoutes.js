@@ -7,7 +7,7 @@ import { auth } from "../middleware/auth.js";
 
 const router = express.Router();
 
-router.get("/", getCategories);
-router.post("/", auth, createCategory); // Admin only in real app
+router.get("/getCategory", getCategories);
+router.post("/createCategory", auth, createCategory); // Admin only in real app
 
 export default router;

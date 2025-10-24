@@ -23,7 +23,7 @@ const CategoryComponent = () => {
             </div>
         );
     return (
-        <div className=" mx-auto container">
+        <div className=" mx-auto max-w-5xl">
 
             <div className="h-full w-full">
                 <div className=" grid   grid-cols-1 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-8 gap-3 sm:gap-0">

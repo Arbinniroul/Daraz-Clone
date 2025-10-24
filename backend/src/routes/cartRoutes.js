@@ -9,9 +9,9 @@ import { auth } from "../middleware/auth.js";
 
 const router = express.Router();
 
-router.get("/", auth, getCart);
-router.post("/items", auth, addToCart);
-router.put("/items/:id", auth, updateCartItem);
-router.delete("/items/:id", auth, removeFromCart);
+router.get("/fetch", auth, getCart);
+router.post("/add", auth, addToCart);
+router.put("/update/:id", auth, updateCartItem);
+router.delete("/remove/:id", auth, removeFromCart);
 
 export default router;

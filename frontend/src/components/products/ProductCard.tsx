@@ -11,14 +11,14 @@ interface ProductCardItemProps {
 const ProductCardItem = ({ product }: ProductCardItemProps) => {
  const navigate=useNavigate()
     const handleProduct = () => {
-        navigate(`products/${product.id}`)
+        navigate(`/products/${product.id}`)
  
      
     };
 
     return (
         <div
-            className="w-50 p-4 flex flex-col gap-1 hover:shadow-lg cursor-pointer"
+            className="w-50 p-4 flex flex-col gap-1 hover:shadow-lg cursor-pointer bg-[#ffffff]"
             onClick={() => {
                 handleProduct();
             }}

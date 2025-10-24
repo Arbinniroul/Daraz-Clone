@@ -5,8 +5,9 @@ import helmet from "helmet";
 import morgan from "morgan";
 import prisma from "./db/connection.js";
 import authRoutes from "./routes/authRoutes.js";
-import productRoutes from "./routes/productRoutes.js";
+import cartRoutes from "./routes/cartRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
+import productRoutes from "./routes/productRoutes.js";
 
 dotenv.config();
 
@@ -87,6 +88,7 @@ app.get("/api/test", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/category", categoryRoutes);
+app.use("/api/cart", cartRoutes);
 
 // Start the server
 app.listen(PORT, async () => {

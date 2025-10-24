@@ -7,7 +7,6 @@ import {
     Smile,
     StarIcon,
 } from "lucide-react";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 
 import type { AppDispatch, RootState } from "@/store";
@@ -15,7 +14,14 @@ import { loginUser, registerUser } from "@/store/thunks/authThunks";
 import { authSchema, type AuthSchema } from "@/types";
 import { useDispatch, useSelector } from "react-redux";
 
+import { useAuth } from "@/contexts/AuthContext";
 import { logout } from "@/store/slices/authSlice";
+import {
+    clearCart,
+    fetchCart,
+    selectCartTotalItems,
+} from "@/store/slices/cartSlice";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Auth from "./auth/Auth";
 import { Button } from "./ui/button";
@@ -28,13 +34,40 @@ import {
 import { Input } from "./ui/input";
 
 const Navbar = () => {
-    const [isAuthValue, setIsAuthValue] = useState("");
+    const navigate = useNavigate();
+
+    const { isAuthValue, setIsAuthValue } = useAuth();
     const dispatch = useDispatch<AppDispatch>();
 
     const { isAuthenticated, user } = useSelector(
         (state: RootState) => state.auth
     );
-    const navigate = useNavigate();
+    const totalCartItems = useSelector(selectCartTotalItems);
+
+    const [badgeCount, setBadgeCount] = useState<number>(0);
+
+    useEffect(() => {
+        const savedTotal = localStorage.getItem("TotalCartItems");
+
+        if (savedTotal) {
+            const savedCount = Number(savedTotal);
+            setBadgeCount(savedCount);
+            console.log("Navbar: Loaded from localStorage:", savedCount);
+        }
+
+        if (isAuthenticated) {
+            console.log("Navbar: User authenticated, will sync with Redux");
+        }
+    }, []);
+
+    useEffect(() => {
+        if (totalCartItems >= 0) {
+            setBadgeCount(totalCartItems);
+            localStorage.setItem("TotalCartItems", totalCartItems.toString());
+            console.log("Navbar: Updated badge from Redux:", totalCartItems);
+        }
+    }, [totalCartItems]);
+
     const form = useForm<AuthSchema>({
         resolver: zodResolver(authSchema),
         defaultValues: {
@@ -44,18 +77,39 @@ const Navbar = () => {
             password: "",
         },
     });
+    const handleLogout = () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("TotalCartItems");
+
+        dispatch(logout());
+        dispatch(clearCart());
+
+        navigate("/");
+    };
+
+    const handleCart = async () => {
+        if (isAuthenticated) {
+            await dispatch(fetchCart());
+            navigate("/cart");
+        } else {
+            setIsAuthValue("login");
+        }
+    };
     async function onSubmit(values: AuthSchema) {
         try {
             if (isAuthValue === "signup") {
+                console.log("Signup clicked ");
                 await dispatch(registerUser(values)).unwrap();
                 setIsAuthValue("");
             } else {
+                console.log("Loggin clicked");
                 await dispatch(
                     loginUser({
                         email: values.email,
                         password: values.password,
                     })
                 ).unwrap();
+
                 setIsAuthValue("");
 
                 console.log("Login successful");
@@ -97,9 +151,7 @@ const Navbar = () => {
                                     </DropdownMenuItem>
                                     <DropdownMenuItem>
                                         <LogOut className="size-6" />
-                                        <li onClick={() => dispatch(logout())}>
-                                            Logout
-                                        </li>
+                                        <li onClick={handleLogout}>Logout</li>
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
@@ -115,8 +167,8 @@ const Navbar = () => {
                         )}
                     </ul>
                 </nav>
-                <div className="max-w-7xl flex  items-center  sm:mx-4 md:mx-20 mx-0 lg:mx-40 px-4 py-3">
-                    <div className="flex lg:space-x-2 px-20  items-center gap-20  ">
+                <div className="max-w-7xl flex  items-center  sm:mx-4 md:mx-20 mx-0 lg:mx-40 px-4 py-3  ">
+                    <div className="flex lg:space-x-2 px-20   items-center gap-20  ">
                         <img
                             src="https://lzd-img-global.slatic.net/us/domino/3b870cb043c7f8a9741cbf66329e294e.png"
                             alt="Daraz Logo"
@@ -135,7 +187,23 @@ const Navbar = () => {
                                     <Search />
                                 </button>
                             </div>
-                            <ShoppingCartIcon className="text-white size-7" />
+
+                            <Button
+                                onClick={handleCart}
+                                className="relative hover:bg-none hover:opacity-4"
+                                variant={"ghost"}
+                            >
+                                <ShoppingCartIcon className="text-white size-7" />
+                                {badgeCount > 0 && (
+                                    <div className="absolute -top-1 -right-1 min-w-[20px] h-5 bg-white border-2 border-[#f75506] rounded-full flex items-center justify-center shadow-sm">
+                                        <span className="text-[10px] font-bold text-[#f75506] px-1">
+                                            {badgeCount > 99
+                                                ? "99+"
+                                                : badgeCount}
+                                        </span>
+                                    </div>
+                                )}
+                            </Button>
                         </div>
                     </div>
                 </div>

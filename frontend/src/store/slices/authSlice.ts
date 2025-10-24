@@ -1,5 +1,6 @@
 import type { AuthResponse, AuthState, User } from "@/types";
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import { toast } from "sonner";
 import { loginUser, registerUser } from "../thunks/authThunks";
 
 const getInitialAuthState = (): AuthState => {
@@ -34,6 +35,8 @@ const authSlice = createSlice({
             state.token = null;
             state.user = null;
             state.error = null;
+
+            toast.message("Logout succesfully");
 
             if (typeof window !== "undefined") {
                 localStorage.removeItem("token");
@@ -88,7 +91,9 @@ const authSlice = createSlice({
                     state.token = action.payload.token;
                     state.user = action.payload.user;
                     state.error = null;
+
                     console.log("registration fulfilled:", action.payload);
+                    toast.success(action.payload.message);
 
                     if (typeof window !== "undefined") {
                         localStorage.setItem("token", action.payload.token);
@@ -105,6 +110,7 @@ const authSlice = createSlice({
                 state.token = null;
                 state.user = null;
                 state.error = action.payload as string;
+                toast.error(action.error as string);
 
                 if (typeof window !== "undefined") {
                     localStorage.removeItem("token");
@@ -124,7 +130,9 @@ const authSlice = createSlice({
                     state.isAuthenticated = true;
                     state.token = action.payload.token;
                     state.user = action.payload.user;
+
                     state.error = null;
+                    toast.success(action.payload.message);
 
                     if (typeof window !== "undefined") {
                         localStorage.setItem("token", action.payload.token);
@@ -141,6 +149,7 @@ const authSlice = createSlice({
                 state.token = null;
                 state.user = null;
                 state.error = action.payload as string;
+                toast.error(action.error as string);
 
                 if (typeof window !== "undefined") {
                     localStorage.removeItem("token");

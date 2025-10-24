@@ -21,6 +21,7 @@ import {
 // Initial state
 interface ProductState {
     products: ProductWithPricing[];
+    saleProducts: ProductWithPricing[];
     currentProduct: ProductWithPricing | null;
     loading: boolean;
     error: string | null;
@@ -30,6 +31,7 @@ interface ProductState {
 
 const initialState: ProductState = {
     products: [],
+    saleProducts:[],
     currentProduct: null,
     loading: false,
     error: null,
@@ -131,9 +133,9 @@ export const createProduct = createAsyncThunk<
 );
 
 export const fetchProducts = createAsyncThunk<
-    ProductsResponse, // Return type
-    ProductFilters, // Argument type
-    { rejectValue: string } // Reject value type
+    ProductsResponse,
+    ProductFilters,
+    { rejectValue: string } 
 >(
     "products/fetchAll",
     async (filters: ProductFilters = {}, { rejectWithValue }) => {
@@ -173,9 +175,9 @@ export const fetchProducts = createAsyncThunk<
 );
 
 export const fetchProduct = createAsyncThunk<
-    ProductWithPricing, // Return type
-    string, // Argument type (productId)
-    { rejectValue: string } // Reject value type
+    ProductWithPricing, 
+    string,
+    { rejectValue: string } 
 >("products/fetchOne", async (productId: string, { rejectWithValue }) => {
     try {
         const response = await fetch(
@@ -197,9 +199,9 @@ export const fetchProduct = createAsyncThunk<
 });
 
 export const updateProduct = createAsyncThunk<
-    ProductWithPricing, // Return type
-    UpdateProductData, // Argument type
-    { rejectValue: string } // Reject value type
+    ProductWithPricing,
+    UpdateProductData,
+    { rejectValue: string } 
 >(
     "products/update",
     async (updateData: UpdateProductData, { rejectWithValue }) => {
@@ -233,9 +235,9 @@ export const updateProduct = createAsyncThunk<
 );
 
 export const updateProductSale = createAsyncThunk<
-    ProductWithPricing, // Return type
-    { id: string; saleData: UpdateSaleData }, // Argument type
-    { rejectValue: string } // Reject value type
+    ProductWithPricing,
+    { id: string; saleData: UpdateSaleData }, 
+    { rejectValue: string }
 >(
     "products/updateSale",
     async (
@@ -270,7 +272,7 @@ export const updateProductSale = createAsyncThunk<
     }
 );
 
-// In your productSlice.ts - update the fetchSaleProducts async thunk
+
 export const fetchSaleProducts = createAsyncThunk<
     ProductsResponse,
     { page?: number; limit?: number; discountMin?: number },
@@ -317,7 +319,7 @@ export const fetchSaleProducts = createAsyncThunk<
                 return rejectWithValue(errorMessage);
             }
 
-            // Now try to parse the successful response as JSON
+
             let data;
             try {
                 data = JSON.parse(responseText);
@@ -342,7 +344,7 @@ export const fetchSaleProducts = createAsyncThunk<
     }
 );
 
-// Product slice
+
 const productSlice = createSlice({
     name: "products",
     initialState,
@@ -382,7 +384,7 @@ const productSlice = createSlice({
                 sortOrder: "desc",
             };
         },
-        // Additional useful reducers
+       
         removeProduct: (state, action: PayloadAction<string>) => {
             state.products = state.products.filter(
                 (product) => product.id !== action.payload
@@ -514,7 +516,7 @@ const productSlice = createSlice({
             })
             .addCase(fetchSaleProducts.fulfilled, (state, action) => {
                 state.loading = false;
-                state.products = action.payload.products;
+                state.saleProducts = action.payload.products;
                 state.pagination = action.payload.pagination;
             })
             .addCase(fetchSaleProducts.rejected, (state, action) => {

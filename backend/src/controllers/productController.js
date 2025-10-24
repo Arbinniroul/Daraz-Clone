@@ -427,7 +427,7 @@ export const getSaleProducts = async (req, res) => {
         const { page = 1, limit = 10, discountMin } = req.query;
 
         console.log("🔍 Starting getSaleProducts...");
-        console.log("📋 Query params:", { page, limit, discountMin });
+       
 
         const where = {
             isOnSale: true,

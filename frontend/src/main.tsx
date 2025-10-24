@@ -1,30 +1,40 @@
+// main.tsx
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
-import App from "./App.tsx";
-import "./index.css";
 import { Provider } from "react-redux";
-import { store } from "./store/index.ts";
+import { BrowserRouter } from "react-router-dom";
 import { Toaster } from "sonner";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import App from "./App.tsx";
+import { AuthProvider } from "./contexts/AuthContext"; // Import from correct path
+import "./index.css";
+import { store } from "./store/index.ts";
 
 const queryClient = new QueryClient({
     defaultOptions: {
         queries: {
-            staleTime: 5 * 60 * 1000, // 5 minutes
+            staleTime: 5 * 60 * 1000,
             retry: 2,
         },
     },
 });
+
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
         <BrowserRouter>
-            <Provider store={store}>
-                <QueryClientProvider client={queryClient}>
-                    <App />
-                </QueryClientProvider>
-                <Toaster />
-            </Provider>
+            <AuthProvider>
+                {" "}
+                <Provider store={store}>
+                    <QueryClientProvider client={queryClient}>
+                        <App />
+                    </QueryClientProvider>
+                    <Toaster
+                        position="bottom-right"
+                        expand={false}
+                        closeButton
+                    />
+                </Provider>
+            </AuthProvider>
         </BrowserRouter>
     </StrictMode>
 );

@@ -1,35 +1,33 @@
+import type { AppDispatch, RootState } from "@/store";
+import { fetchProducts } from "@/store/slices/productSlice";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
-     import{ useEffect } from "react";
-     import { useDispatch, useSelector } from "react-redux";
-     import { fetchProducts } from "@/store/slices/productSlice";
-     import type { AppDispatch, RootState } from "@/store";
 import ProductCardItem from "@/components/products/ProductCard";
 
-const AllProducts = () => {
- 
-
-
+const AllProductsPage = () => {
     const dispatch = useDispatch<AppDispatch>();
     const { products, loading, error } = useSelector(
         (state: RootState) => state.products
     );
 
-
     useEffect(() => {
-        dispatch(fetchProducts({ 
-            page: 1, 
-            limit: 20 
-        }));
+        dispatch(
+            fetchProducts({
+                page: 1,
+                limit: 20,
+            })
+        );
     }, [dispatch]);
 
     const handleRetry = () => {
-        dispatch(fetchProducts({ 
-            page: 1, 
-            limit: 20 
-        }));
+        dispatch(
+            fetchProducts({
+                page: 1,
+                limit: 20,
+            })
+        );
     };
-
-
 
     if (loading && products.length === 0) {
         return (
@@ -55,23 +53,17 @@ const AllProducts = () => {
             </div>
         );
     }
-  return (
-    <div className="container mx-auto">
-          <div className=" flex justify-center border-0  my-2">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-5 ">
-                            {products.map((product) => (
-                                <ProductCardItem
-                                    key={product.id}
-                                    product={product}
-                                />
-                            ))}
-                            
-                        </div>
-                        </div>
+    return (
+        <div className="container mx-auto">
+            <div className=" flex justify-center border-0  my-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-5 ">
+                    {products.map((product) => (
+                        <ProductCardItem key={product.id} product={product} />
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+};
 
-
-    </div>
-  )
-}
-
-export default AllProducts
+export default AllProductsPage;

@@ -99,6 +99,8 @@ export interface ProductFilters {
     category?: string;
     minPrice?: number;
     maxPrice?: number;
+    page?: number;
+    limit?:number;
     search?: string;
     onSale?: boolean;
     discountMin?: number;

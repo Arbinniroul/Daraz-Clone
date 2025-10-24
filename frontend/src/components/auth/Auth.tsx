@@ -15,14 +15,11 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-
-import type { UseFormReturn } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-import type { AuthSchema } from "@/types";
-import { useSelector } from "react-redux";
 import type { RootState } from "@/store";
-
-
+import type { AuthSchema } from "@/types";
+import type { UseFormReturn } from "react-hook-form";
+import { useSelector } from "react-redux";
 
 interface AuthProps {
     onSubmit: (values: AuthSchema) => Promise<void>;
@@ -33,9 +30,7 @@ interface AuthProps {
 }
 
 const Auth = ({ onSubmit, isAuthValue, setIsAuthValue, form }: AuthProps) => {
-       const { isLoading } = useSelector(
-           (state: RootState) => state.auth
-       );
+    const { isLoading } = useSelector((state: RootState) => state.auth);
     return (
         <div>
             <Dialog

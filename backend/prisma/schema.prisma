@@ -76,18 +76,18 @@ model Address {
 }
 
 model Product {
-  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   description String?
-  price       Float      // Original price
-  salePrice   Float?     // Sale price (if on sale)
-  discount    Float?     // Discount percentage (0-100)
-  isOnSale    Boolean    @default(false) // Flag to easily filter sale items
-  saleStart   DateTime?  // Sale period start
-  saleEnd     DateTime?  // Sale period end
+  price       Float // Original price
+  salePrice   Float? // Sale price (if on sale)
+  discount    Float? // Discount percentage (0-100)
+  isOnSale    Boolean   @default(false) // Flag to easily filter sale items
+  saleStart   DateTime? // Sale period start
+  saleEnd     DateTime? // Sale period end
   images      String[]
-  categoryId  String     @db.ObjectId
-  category    Category   @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId  String    @db.ObjectId
+  category    Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
   // Seller relation
   sellerId String?        @db.ObjectId
@@ -171,7 +171,7 @@ model Order {
 model OrderItem {
   id        String  @id @default(auto()) @map("_id") @db.ObjectId
   quantity  Int
-  price     Float   // This should store the price at time of order (either salePrice or regular price)
+  price     Float // This should store the price at time of order (either salePrice or regular price)
   orderId   String  @db.ObjectId
   order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
   productId String  @db.ObjectId

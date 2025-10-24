@@ -1,5 +1,9 @@
-import type { AuthResponse, LoginCredentials, RegisterCredentials, User } from "@/types";
-
+import type {
+    AuthResponse,
+    LoginCredentials,
+    RegisterCredentials,
+    User,
+} from "@/types";
 
 const API_BASE_URL = "http://localhost:3000/api/auth";
 
@@ -7,7 +11,6 @@ export class AuthService {
     static async register(
         credentials: RegisterCredentials
     ): Promise<AuthResponse> {
-
         const response = await fetch(`${API_BASE_URL}/register`, {
             method: "POST",
             headers: {
@@ -17,7 +20,7 @@ export class AuthService {
         });
 
         const data = await response.json();
-        console.log(data)
+        console.log(data);
 
         if (!response.ok) {
             throw new Error(data.error || "Registration failed");

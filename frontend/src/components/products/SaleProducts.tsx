@@ -1,21 +1,21 @@
 import type { AppDispatch, RootState } from "@/store";
 
-import {  fetchSaleProducts } from "@/store/slices/productSlice";
+import { fetchSaleProducts } from "@/store/slices/productSlice";
 
 import { ArrowRightIcon } from "lucide-react";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
 import ProductCardItem from "./ProductCard";
-import { useNavigate } from "react-router-dom";
 
 const SaleProducts = () => {
     const dispatch = useDispatch<AppDispatch>();
-    const { products, loading, error, pagination } = useSelector(
+    const { saleProducts, loading, error, pagination } = useSelector(
         (state: RootState) => state.products
     );
-    console.log(products);
- const navigate = useNavigate();
+
+    const navigate = useNavigate();
     useEffect(() => {
         dispatch(fetchSaleProducts({ page: 1, limit: 20 }));
     }, [dispatch]);
@@ -24,21 +24,11 @@ const SaleProducts = () => {
         dispatch(fetchSaleProducts({ page: 1, limit: 20 }));
     };
 
-    const handleLoadMore = () => {
-        if (pagination.page < pagination.pages) {
-            dispatch(
-                fetchSaleProducts({
-                    page: pagination.page + 1,
-                    limit: pagination.limit,
-                })
-            );
-        }
-    };
     const handleProducts = () => {
-       navigate("/allProducts")
+        navigate("/allProducts");
     };
     // Handle loading state
-    if (loading && products.length === 0) {
+    if (loading && saleProducts.length === 0) {
         return (
             <div className="flex justify-center items-center h-64">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
@@ -47,7 +37,7 @@ const SaleProducts = () => {
     }
 
     // Handle error state
-    if (error && products.length === 0) {
+    if (error && saleProducts.length === 0) {
         return (
             <div className="flex justify-center items-center h-64">
                 <div className="text-red-500 text-center">
@@ -91,7 +81,7 @@ const SaleProducts = () => {
                             <Button
                                 variant={"ghost"}
                                 className="text-base sm:text-base md:text-xl lg:text-2xl "
-                                onClick={() => {}}
+                                onClick={handleProducts}
                             >
                                 SHOP MORE
                             </Button>
@@ -102,66 +92,13 @@ const SaleProducts = () => {
                     </div>
                     <div className=" flex justify-center border-0 lg:border-t-2 my-2">
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-5 ">
-                            {products.map((product) => (
+                            {saleProducts.map((product) => (
                                 <ProductCardItem
                                     key={product.id}
                                     product={product}
                                 />
                             ))}
-                            {products.map((product) => (
-                                <ProductCardItem
-                                    key={product.id}
-                                    product={product}
-                                />
-                            ))}
-                            {products.map((product) => (
-                                <ProductCardItem
-                                    key={product.id}
-                                    product={product}
-                                />
-                            ))}{" "}
-                            {products.map((product) => (
-                                <ProductCardItem
-                                    key={product.id}
-                                    product={product}
-                                />
-                            ))}{" "}
-                            {products.map((product) => (
-                                <ProductCardItem
-                                    key={product.id}
-                                    product={product}
-                                />
-                            ))}
-                            {products.length === 0 && !loading && (
-                                <div className="col-span-full text-center py-12">
-                                    <p className="text-gray-500 text-lg">
-                                        No sale products found
-                                    </p>
-                                </div>
-                            )}
                         </div>
-
-                        {/* Load More Button */}
-                        {pagination.page < pagination.pages && (
-                            <div className="flex justify-center">
-                                <button
-                                    onClick={handleLoadMore}
-                                    disabled={loading}
-                                    className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                                >
-                                    {loading
-                                        ? "Loading..."
-                                        : `Load More (${pagination.page}/${pagination.pages})`}
-                                </button>
-                            </div>
-                        )}
-
-                        {/* Loading indicator for additional pages */}
-                        {loading && products.length > 0 && (
-                            <div className="flex justify-center">
-                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                            </div>
-                        )}
                     </div>
                 </div>
             </div>

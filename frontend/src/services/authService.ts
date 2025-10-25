@@ -1,4 +1,5 @@
 import type {
+    Address,
     AuthResponse,
     LoginCredentials,
     RegisterCredentials,
@@ -42,6 +43,47 @@ export class AuthService {
 
         if (!response.ok) {
             throw new Error(data.error || "Login failed");
+        }
+
+        return data;
+    }
+    static async addAddress(
+        token: string,
+        address: Address
+    ): Promise<{ message: string }> {
+        const response = await fetch(`${API_BASE_URL}/add/address`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(address),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || "Failed to add address");
+        }
+
+        return data;
+    }
+    static async getAddress(
+        token: string,
+        userId: string
+    ): Promise<{ address: Address }> {
+        const response = await fetch(`${API_BASE_URL}/get/address/${userId}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || "Failed to fetch address");
         }
 
         return data;

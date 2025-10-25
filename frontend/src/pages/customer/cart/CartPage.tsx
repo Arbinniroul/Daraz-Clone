@@ -11,6 +11,8 @@ import {
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import ProductComponent from "@/components/products/ProductComponent";
+
 
 // Types
 interface CartItem {
@@ -45,6 +47,7 @@ const CartPage = () => {
 
     const [selectedItems, setSelectedItems] = useState<SelectedItems>({});
     const [selectAll, setSelectAll] = useState<boolean>(false);
+
 
     useEffect(() => {
         localStorage.setItem(
@@ -159,6 +162,8 @@ const CartPage = () => {
                     (item) => selectedItems[item.id]
                 ),
             },
+            
+           
         });
     };
 
@@ -176,8 +181,8 @@ const CartPage = () => {
 
     if (cartItems.length === 0) {
         return (
-            <div className="max-w-7xl mx-auto p-6">
-                <div className="text-center py-16">
+            <div className="max-w-5xl mx-auto p-6">
+                <div className="text-center py-16 ">
                     <h2 className="text-2xl font-semibold text-gray-700 mb-4">
                         There are no items in this cart
                     </h2>
@@ -197,11 +202,11 @@ const CartPage = () => {
     }
 
     return (
-        <div className="max-w-7xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="max-w-7xl h-screen mx-auto p-6 grid grid-cols-1 lg:grid-cols-3  ">
             {/* Left Section */}
-            <div className="lg:col-span-2 space-y-4">
+            <div className="lg:col-span-2 space-y-4 lg:mx-10">
                 {/* Header */}
-                <div className="flex items-center justify-between bg-gray-100 p-4 rounded-xl shadow-sm">
+                <div className="flex items-center justify-between bg-[#ffff] p-4 rounded-xl shadow-sm">
                     <div className="flex items-center gap-2">
                         <input
                             type="checkbox"
@@ -291,58 +296,9 @@ const CartPage = () => {
                                         }
                                         className="w-4 h-4 text-blue-600 rounded"
                                     />
-                                    <div
-                                        onClick={() =>
-                                            navigate(
-                                                `/products/${item.product.id}`
-                                            )
-                                        }
-                                        className="flex flex-col md:flex-row justify-center items-start md:items-center  w-full"
-                                    >
-                                        <img
-                                            src={
-                                                item.product.images[0] ||
-                                                item.product.images[1] ||
-                                                "https://via.placeholder.com/80"
-                                            }
-                                            alt={item.product.name}
-                                            className="w-20 md:mr-10 h-20 object-cover rounded-lg border"
-                                        />
-                                        <div className="md:flex-1 min-w-0">
-                                            <p className="font-semibold text-gray-800 line-clamp-2">
-                                                {item.product.name}
-                                            </p>
-                                            <p className="text-sm text-gray-500 mt-1">
-                                                In stock:{" "}
-                                                {item.product.inventory
-                                                    ?.quantity || "N/A"}
-                                            </p>
-                                        </div>
+                              
+                                      <ProductComponent  item={item} displayPrice={displayPrice} originalPrice={originalPrice} hasDiscount={hasDiscount} handleRemoveItem={handleRemoveItem}/>
 
-                                        <div className="flex flex-col lg:mx-10  items-end text-right min-w-[100px]">
-                                            <p className="text-orange-600 font-semibold text-lg">
-                                                Rs. {displayPrice.toFixed(2)}
-                                            </p>
-                                            {hasDiscount && (
-                                                <p className="text-gray-400 text-sm line-through">
-                                                    Rs.{" "}
-                                                    {originalPrice.toFixed(2)}
-                                                </p>
-                                            )}
-
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                className="text-gray-500 hover:text-red-600"
-                                                onClick={(e) =>
-                                                  {  e.stopPropagation();
-                                                  handleRemoveItem(item.id);}
-                                                }
-                                            >
-                                                <TrashIcon className="w-5 h-5" />
-                                            </Button>
-                                        </div>
-                                    </div>
                                     <div className="flex items-center gap-2 border rounded-md px-2">
                                         <button
                                             className="px-2 text-gray-500 hover:text-gray-700 disabled:opacity-50"
@@ -399,10 +355,7 @@ const CartPage = () => {
                     <span>Rs. {selectedItemsTotal.toFixed(2)}</span>
                 </div>
 
-                <div className="flex justify-between text-sm mb-4">
-                    <span>Shipping Fee</span>
-                    <span className="text-green-600">Rs. 0</span>
-                </div>
+             
 
                 <div className="flex justify-between font-semibold text-lg mb-4 border-t pt-4">
                     <span>Total</span>

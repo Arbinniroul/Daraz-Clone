@@ -6,11 +6,13 @@ export interface CartItem {
         id: string;
         name: string;
         price: number;
-        salePrice?: number;
+        salePrice?: number ;
         images: string[];
         inventory?: {
             quantity: number;
         };
+        hasDiscount?:boolean ;
+        discountPercentage?: number;
         seller?: {
             storeName: string;
             user?: {

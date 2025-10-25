@@ -13,11 +13,9 @@ const Home = () => {
     
 
     return (
-        <div className="relative max-w-screen ">
+        <div className="relative max-w-screen bg-[#eff0f4] ">
             <Navbar />
-           {
-            hideCategoryBar && <CategoryBar />
-           }
+            {hideCategoryBar && <CategoryBar />}
             <Outlet />
         </div>
     );

@@ -2,7 +2,7 @@ import CarouselBody from "@/components/CarouselBody";
 import CategoryContainer from "@/components/categories/CategoryContainer";
 
 import SaleProducts from "@/components/products/SaleProducts";
-import AllProductsPage from "./products/AllProductsPage";
+import AllProductsPage from "./products/AllProducts";
 
 const Landing = () => {
     return (

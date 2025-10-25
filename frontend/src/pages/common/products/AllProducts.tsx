@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import ProductCardItem from "@/components/products/ProductCard";
+import ProductLayout from "../../../components/products/ProductLayout";
 
 const AllProductsPage = () => {
     const dispatch = useDispatch<AppDispatch>();
@@ -54,15 +55,11 @@ const AllProductsPage = () => {
         );
     }
     return (
-        <div className="container mx-auto">
-            <div className=" flex justify-center border-0  my-2">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-5 ">
-                    {products.map((product) => (
-                        <ProductCardItem key={product.id} product={product} />
-                    ))}
-                </div>
-            </div>
-        </div>
+        <ProductLayout>
+            {products.map((product) => (
+                <ProductCardItem key={product.id} product={product} />
+            ))}
+        </ProductLayout>
     );
 };
 

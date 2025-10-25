@@ -4,18 +4,22 @@ import { Route, Routes } from "react-router-dom";
 import About from "./pages/About";
 import Home from "./pages/Home";
 import Landing from "./pages/common/Landing";
-import AllProductsPage from "./pages/common/products/AllProductsPage";
+import AllProductsPage from "./pages/common/products/AllProducts";
+import CategoryProduct from "./pages/common/products/CategoryProduct";
 import ProductPage from "./pages/common/products/ProductPage";
 import CartPage from "./pages/customer/cart/CartPage";
 import type { AppDispatch, RootState } from "./store";
 import { fetchCart } from "./store/slices/cartSlice";
+import CheckoutPage from "./pages/customer/checkout/checkout";
 
 const useAppInitializer = () => {
     const dispatch = useDispatch<AppDispatch>();
-    const { isAuthenticated,token } = useSelector((state: RootState) => state.auth);
+    const { isAuthenticated, token } = useSelector(
+        (state: RootState) => state.auth
+    );
 
     useEffect(() => {
-        if (isAuthenticated && token ) {
+        if (isAuthenticated && token) {
             console.log("AppInitializer: Fetching cart for authenticated user");
             dispatch(fetchCart());
         } else {
@@ -24,7 +28,7 @@ const useAppInitializer = () => {
             );
             localStorage.removeItem("TotalCartItems");
         }
-    }, [dispatch, isAuthenticated,token]);
+    }, [dispatch, isAuthenticated, token]);
 };
 
 function App() {
@@ -36,8 +40,13 @@ function App() {
                 <Route index element={<Landing />} />
                 <Route path="about" element={<About />} />
                 <Route path="products/:id" element={<ProductPage />} />
+                <Route
+                    path="products/category/:id"
+                    element={<CategoryProduct />}
+                />
                 <Route path="/allproducts" element={<AllProductsPage />} />
                 <Route path="/cart" element={<CartPage />} />
+                <Route path="/checkout" element={<CheckoutPage />} />
             </Route>
         </Routes>
     );

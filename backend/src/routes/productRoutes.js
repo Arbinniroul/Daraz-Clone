@@ -3,6 +3,7 @@ import {
     createProduct,
     getProduct,
     getProducts,
+    getProductsbyCategoryId,
     getSaleProducts,
     updateProduct,
     updateProductSale,
@@ -16,6 +17,8 @@ router.post("/", auth, createProduct);
 router.get("/fetchProducts", getProducts);
 router.get("/:id", getProduct);
 router.put("/:id", auth, updateProduct);
+router.get("/categoryProducts/:id", getProductsbyCategoryId);
+
 
 // Sale-specific routes
 router.patch("/:id/sale", auth, updateProductSale); // Update only sale information

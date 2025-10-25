@@ -1,12 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Loader2, MinusIcon, PlusIcon, TrashIcon } from "lucide-react";
 
-import type { AppDispatch, RootState } from "@/store";
+import type { AppDispatch } from "@/store";
 import {
     removeFromCart,
     selectCartItems,
     selectCartLoading,
-    selectCartTotalPrice,
     updateCartItem,
 } from "@/store/slices/cartSlice";
 import { useEffect, useState } from "react";
@@ -41,13 +40,11 @@ const CartPage = () => {
     const navigate = useNavigate();
 
     const cartItems = useSelector(selectCartItems);
-    const totalPrice = useSelector(selectCartTotalPrice);
-    const { totalCartItems } = useSelector((state: RootState) => state.cart);
+
     const loading = useSelector(selectCartLoading);
 
     const [selectedItems, setSelectedItems] = useState<SelectedItems>({});
     const [selectAll, setSelectAll] = useState<boolean>(false);
-    const [voucherCode, setVoucherCode] = useState<string>("");
 
     useEffect(() => {
         localStorage.setItem(
@@ -300,7 +297,7 @@ const CartPage = () => {
                                                 `/products/${item.product.id}`
                                             )
                                         }
-                                        className="flex  items-center w-full"
+                                        className="flex flex-col md:flex-row justify-center items-start md:items-center  w-full"
                                     >
                                         <img
                                             src={
@@ -309,9 +306,9 @@ const CartPage = () => {
                                                 "https://via.placeholder.com/80"
                                             }
                                             alt={item.product.name}
-                                            className="w-20 mr-10 h-20 object-cover rounded-lg border"
+                                            className="w-20 md:mr-10 h-20 object-cover rounded-lg border"
                                         />
-                                        <div className="flex-1 min-w-0">
+                                        <div className="md:flex-1 min-w-0">
                                             <p className="font-semibold text-gray-800 line-clamp-2">
                                                 {item.product.name}
                                             </p>
@@ -322,7 +319,7 @@ const CartPage = () => {
                                             </p>
                                         </div>
 
-                                        <div className="flex flex-col mx-10  items-end text-right min-w-[100px]">
+                                        <div className="flex flex-col lg:mx-10  items-end text-right min-w-[100px]">
                                             <p className="text-orange-600 font-semibold text-lg">
                                                 Rs. {displayPrice.toFixed(2)}
                                             </p>
@@ -337,48 +334,49 @@ const CartPage = () => {
                                                 variant="ghost"
                                                 size="icon"
                                                 className="text-gray-500 hover:text-red-600"
-                                                onClick={() =>
-                                                    handleRemoveItem(item.id)
+                                                onClick={(e) =>
+                                                  {  e.stopPropagation();
+                                                  handleRemoveItem(item.id);}
                                                 }
                                             >
                                                 <TrashIcon className="w-5 h-5" />
                                             </Button>
                                         </div>
-                                        <div className="flex items-center gap-2 border rounded-md px-2">
-                                            <button
-                                                className="px-2 text-gray-500 hover:text-gray-700 disabled:opacity-50"
-                                                onClick={() =>
-                                                    handleQuantityUpdate(
-                                                        item.id,
-                                                        item.quantity - 1
-                                                    )
-                                                }
-                                                disabled={item.quantity <= 1}
-                                            >
-                                                <MinusIcon className="w-4 h-4" />
-                                            </button>
-                                            <span className="min-w-[2rem] text-center">
-                                                {item.quantity}
-                                            </span>
-                                            <button
-                                                className="px-2 text-gray-500 hover:text-gray-700 disabled:opacity-50"
-                                                onClick={() =>
-                                                    handleQuantityUpdate(
-                                                        item.id,
-                                                        item.quantity + 1
-                                                    )
-                                                }
-                                                disabled={
-                                                    item.product.inventory
-                                                        ? item.quantity >=
-                                                          item.product.inventory
-                                                              .quantity
-                                                        : false
-                                                }
-                                            >
-                                                <PlusIcon className="w-4 h-4" />
-                                            </button>
-                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-2 border rounded-md px-2">
+                                        <button
+                                            className="px-2 text-gray-500 hover:text-gray-700 disabled:opacity-50"
+                                            onClick={() =>
+                                                handleQuantityUpdate(
+                                                    item.id,
+                                                    item.quantity - 1
+                                                )
+                                            }
+                                            disabled={item.quantity <= 1}
+                                        >
+                                            <MinusIcon className="w-4 h-4" />
+                                        </button>
+                                        <span className="min-w-[2rem] text-center">
+                                            {item.quantity}
+                                        </span>
+                                        <button
+                                            className="px-2 text-gray-500 hover:text-gray-700 disabled:opacity-50"
+                                            onClick={() =>
+                                                handleQuantityUpdate(
+                                                    item.id,
+                                                    item.quantity + 1
+                                                )
+                                            }
+                                            disabled={
+                                                item.product.inventory
+                                                    ? item.quantity >=
+                                                      item.product.inventory
+                                                          .quantity
+                                                    : false
+                                            }
+                                        >
+                                            <PlusIcon className="w-4 h-4" />
+                                        </button>
                                     </div>
                                 </div>
                             );

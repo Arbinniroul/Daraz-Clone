@@ -52,11 +52,7 @@ const Navbar = () => {
         if (savedTotal) {
             const savedCount = Number(savedTotal);
             setBadgeCount(savedCount);
-            console.log("Navbar: Loaded from localStorage:", savedCount);
-        }
 
-        if (isAuthenticated) {
-            console.log("Navbar: User authenticated, will sync with Redux");
         }
     }, []);
 
@@ -64,7 +60,7 @@ const Navbar = () => {
         if (totalCartItems >= 0) {
             setBadgeCount(totalCartItems);
             localStorage.setItem("TotalCartItems", totalCartItems.toString());
-            console.log("Navbar: Updated badge from Redux:", totalCartItems);
+           
         }
     }, [totalCartItems]);
 

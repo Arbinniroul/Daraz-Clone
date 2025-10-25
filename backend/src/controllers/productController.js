@@ -172,7 +172,6 @@ export const getProducts = async (req, res) => {
             if (discountMax) where.discount.lte = parseFloat(discountMax);
         }
 
-        
         const orderBy = {};
         if (sortBy === "price") {
             orderBy.price = sortOrder;
@@ -238,6 +237,56 @@ export const getProducts = async (req, res) => {
         res.status(500).json({
             error: "Failed to fetch products",
             details: error.message,
+        });
+    }
+};
+export const getProductsbyCategoryId = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const products = await prisma.product.findMany({
+            where: {
+                categoryId: id,
+            },
+            include: {
+                category: true,
+                inventory: true,
+                seller: {
+                    include: {
+                        user: {
+                            select: {
+                                username: true,
+                                email: true,
+                            },
+                        },
+                    },
+                },
+                reviews: {
+                    include: {
+                        user: {
+                            select: {
+                                username: true,
+                                profile: true,
+                            },
+                        },
+                    },
+                },
+            },
+        });
+        if (!products.length > 0) {
+            return res.status(200).json({
+                message: "No products available",
+                products,
+            });
+        }
+        return res.status(200).json({
+            message: "Products fetched successfully",
+            products: products,
+            count: products.length,
+        });
+    } catch (error) {
+        return res.status(400).json({
+            message: "Error occured",
+            error,
         });
     }
 };
@@ -427,7 +476,6 @@ export const getSaleProducts = async (req, res) => {
         const { page = 1, limit = 10, discountMin } = req.query;
 
         console.log("🔍 Starting getSaleProducts...");
-       
 
         const where = {
             isOnSale: true,
@@ -448,16 +496,13 @@ export const getSaleProducts = async (req, res) => {
 
         console.log("📋 Final WHERE clause:", JSON.stringify(where, null, 2));
 
-        
         const totalProducts = await prisma.product.count();
         console.log(`📊 Total products in database: ${totalProducts}`);
 
-     
         const onSaleProducts = await prisma.product.count({
             where: { isOnSale: true },
         });
         console.log(`🏷️ Products with isOnSale=true: ${onSaleProducts}`);
-
 
         const activeSaleProducts = await prisma.product.count({
             where: {
@@ -470,7 +515,6 @@ export const getSaleProducts = async (req, res) => {
             `📅 Products with active sale dates: ${activeSaleProducts}`
         );
 
-      
         const permanentSaleProducts = await prisma.product.count({
             where: {
                 isOnSale: true,
@@ -520,7 +564,6 @@ export const getSaleProducts = async (req, res) => {
 
         const total = await prisma.product.count({ where });
 
-        
         const saleStats = {
             totalProductsOnSale: total,
             averageDiscount:
@@ -562,7 +605,6 @@ export const getSaleProducts = async (req, res) => {
         });
     }
 };
-
 
 function getCurrentPrice(product) {
     if (product.isOnSale && product.salePrice && isSaleActiveCheck(product)) {

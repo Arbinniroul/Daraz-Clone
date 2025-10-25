@@ -22,6 +22,7 @@ import {
 interface ProductState {
     products: ProductWithPricing[];
     saleProducts: ProductWithPricing[];
+    categoryProducts: ProductWithPricing[];
     currentProduct: ProductWithPricing | null;
     loading: boolean;
     error: string | null;
@@ -31,7 +32,8 @@ interface ProductState {
 
 const initialState: ProductState = {
     products: [],
-    saleProducts:[],
+    saleProducts: [],
+    categoryProducts: [],
     currentProduct: null,
     loading: false,
     error: null,
@@ -135,7 +137,7 @@ export const createProduct = createAsyncThunk<
 export const fetchProducts = createAsyncThunk<
     ProductsResponse,
     ProductFilters,
-    { rejectValue: string } 
+    { rejectValue: string }
 >(
     "products/fetchAll",
     async (filters: ProductFilters = {}, { rejectWithValue }) => {
@@ -173,11 +175,64 @@ export const fetchProducts = createAsyncThunk<
         }
     }
 );
+export const fetchCategoryProducts = createAsyncThunk<
+    ProductWithPricing[],
+    string,
+    { rejectValue: string }
+>(
+    "products/fetchCategoryProducts",
+    async (categoryID: string, { rejectWithValue }) => {
+        try {
+
+            if (!categoryID || categoryID.trim() === "") {
+                return rejectWithValue("Category ID is required");
+            }
+
+            const response = await fetch(
+                `http://localhost:3000/api/products/categoryProducts/${categoryID}`
+            );
+
+
+            if (!response.ok) {
+                if (response.status === 404) {
+                    return rejectWithValue("Category not found");
+                }
+                if (response.status === 500) {
+                    return rejectWithValue("Server error occurred");
+                }
+
+                const errorData = await response.json().catch(() => ({}));
+                return rejectWithValue(
+                    errorData.message ||
+                        `HTTP error! status: ${response.status}`
+                );
+            }
+
+            const data: ProductsResponse = await response.json();
+
+
+            if (!data.products || data.products.length === 0) {
+                return []; 
+            }
+
+            return data.products.map((product) =>
+                enhanceProductWithPricing(product)
+            );
+        } catch (error: unknown) {
+            console.error("Fetch category products error:", error);
+            return rejectWithValue(
+                error instanceof Error
+                    ? error.message
+                    : "Network error occurred while fetching products"
+            );
+        }
+    }
+);
 
 export const fetchProduct = createAsyncThunk<
-    ProductWithPricing, 
+    ProductWithPricing,
     string,
-    { rejectValue: string } 
+    { rejectValue: string }
 >("products/fetchOne", async (productId: string, { rejectWithValue }) => {
     try {
         const response = await fetch(
@@ -201,7 +256,7 @@ export const fetchProduct = createAsyncThunk<
 export const updateProduct = createAsyncThunk<
     ProductWithPricing,
     UpdateProductData,
-    { rejectValue: string } 
+    { rejectValue: string }
 >(
     "products/update",
     async (updateData: UpdateProductData, { rejectWithValue }) => {
@@ -236,7 +291,7 @@ export const updateProduct = createAsyncThunk<
 
 export const updateProductSale = createAsyncThunk<
     ProductWithPricing,
-    { id: string; saleData: UpdateSaleData }, 
+    { id: string; saleData: UpdateSaleData },
     { rejectValue: string }
 >(
     "products/updateSale",
@@ -271,7 +326,6 @@ export const updateProductSale = createAsyncThunk<
         }
     }
 );
-
 
 export const fetchSaleProducts = createAsyncThunk<
     ProductsResponse,
@@ -319,7 +373,6 @@ export const fetchSaleProducts = createAsyncThunk<
                 return rejectWithValue(errorMessage);
             }
 
-
             let data;
             try {
                 data = JSON.parse(responseText);
@@ -344,11 +397,13 @@ export const fetchSaleProducts = createAsyncThunk<
     }
 );
 
-
 const productSlice = createSlice({
     name: "products",
     initialState,
     reducers: {
+        clearCategoryProducts: (state) => {
+            state.categoryProducts = [];
+        },
         clearError: (state) => {
             state.error = null;
         },
@@ -384,7 +439,7 @@ const productSlice = createSlice({
                 sortOrder: "desc",
             };
         },
-       
+
         removeProduct: (state, action: PayloadAction<string>) => {
             state.products = state.products.filter(
                 (product) => product.id !== action.payload
@@ -414,7 +469,7 @@ const productSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            // Create Product
+
             .addCase(createProduct.pending, (state) => {
                 state.loading = true;
                 state.error = null;
@@ -428,7 +483,7 @@ const productSlice = createSlice({
                 state.error = action.payload ?? "Failed to create product";
             })
 
-            // Fetch Products
+
             .addCase(fetchProducts.pending, (state) => {
                 state.loading = true;
                 state.error = null;
@@ -442,8 +497,35 @@ const productSlice = createSlice({
                 state.loading = false;
                 state.error = action.payload ?? "Failed to fetch products";
             })
+            .addCase(fetchCategoryProducts.pending, (state) => {
+                state.loading = true;
+                state.error = null;
 
-            // Fetch Single Product
+            })
+            .addCase(
+                fetchCategoryProducts.fulfilled,
+                (state, action: PayloadAction<ProductWithPricing[]>) => {
+                    state.loading = false;
+                    state.categoryProducts = action.payload;
+                    state.error = null;
+
+                    console.log(
+                        `Loaded ${action.payload.length} products for category`
+                    );
+                }
+            )
+            .addCase(fetchCategoryProducts.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload as string;
+                state.categoryProducts = []; 
+
+                console.error(
+                    "Failed to fetch category products:",
+                    action.payload
+                );
+            })
+
+
             .addCase(fetchProduct.pending, (state) => {
                 state.loading = true;
                 state.error = null;
@@ -457,7 +539,7 @@ const productSlice = createSlice({
                 state.error = action.payload ?? "Failed to fetch product";
             })
 
-            // Update Product
+
             .addCase(updateProduct.pending, (state) => {
                 state.loading = true;
                 state.error = null;

@@ -26,15 +26,18 @@ export const productSchema = z.object({
 
 // Address forms
 export const addressSchema = z.object({
+    name: z.string().min(1, "Name is required"),
+    phonenumber: z.string().min(1, "Phone number is required"),
     street: z.string().min(1, "Street is required"),
     city: z.string().min(1, "City is required"),
     state: z.string().min(1, "State is required"),
     country: z.string().min(1, "Country is required"),
     zipCode: z.string().min(1, "Zip code is required"),
+    location: z.enum(["Home", "Office"]).default("Home"),
     isDefault: z.boolean().default(false),
 });
 
 // Infer TypeScript types from Zod schemas
-export type AuthSchema = z.infer<typeof authSchema>;
+
 export type ProductForm = z.infer<typeof productSchema>;
 export type AddressForm = z.infer<typeof addressSchema>;

@@ -43,12 +43,15 @@ export interface Payment {
 
 // Shipping address
 export interface Address {
-    id: string;
+    id?:string,
+    name: string;
+    phonenumber: string;
     street: string;
     city: string;
     state: string;
     country: string;
     zipCode: string;
+    location: "Home" | "Office";
     isDefault: boolean;
 }
 

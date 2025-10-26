@@ -21,7 +21,7 @@ const CategoryBar = () => {
 
     return (
         <div className="w-full  bg-[#ffffff]">
-            <div className="max-w-6xl mx-auto">
+            <div className="container mx-64">
                 <NavigationMenu>
                     <NavigationMenuList>
                         <NavigationMenuItem>

@@ -1,3 +1,5 @@
+import type { Address } from "./order.types";
+
 // User roles
 export type UserRole = "CUSTOMER" | "SELLER" | "ADMIN";
 
@@ -57,3 +59,25 @@ export interface AuthState {
     isLoading: boolean;
     error: string | null;
 }
+export interface AddAddressResponse {
+    success: boolean;
+    data: Address; 
+    message?: string;
+}
+
+
+export interface GetAddressesResponse {
+    success: boolean;
+    address: Address[];
+    message?: string;
+}
+export interface AddAddressResponse {
+    message?: string;
+    address: Address;
+}
+
+export interface GetAddressesResponse {
+    addresses: Address[];
+}
+
+export type AddressResponse = AddAddressResponse | GetAddressesResponse;

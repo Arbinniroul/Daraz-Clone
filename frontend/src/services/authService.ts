@@ -1,9 +1,10 @@
 import type {
-    Address,
+    AddAddressResponse,
+    AddressForm,
     AuthResponse,
+    GetAddressesResponse,
     LoginCredentials,
     RegisterCredentials,
-    User,
 } from "@/types";
 
 const API_BASE_URL = "http://localhost:3000/api/auth";
@@ -47,18 +48,23 @@ export class AuthService {
 
         return data;
     }
+
     static async addAddress(
-        token: string,
-        address: Address
-    ): Promise<{ message: string }> {
-        const response = await fetch(`${API_BASE_URL}/add/address`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify(address),
-        });
+        
+        address: AddressForm
+    ): Promise<AddAddressResponse> {
+        const token=localStorage.getItem("token");
+        const response = await fetch(
+            `http://localhost:3000/api/user/add/address/`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(address),
+            }
+        );
 
         const data = await response.json();
 
@@ -68,40 +74,28 @@ export class AuthService {
 
         return data;
     }
+
     static async getAddress(
-        token: string,
+
         userId: string
-    ): Promise<{ address: Address }> {
-        const response = await fetch(`${API_BASE_URL}/get/address/${userId}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-            },
-        });
+    ): Promise<GetAddressesResponse> {
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(
+            `http://localhost:3000/api/user/get/address/${userId}`,
+            {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
 
         const data = await response.json();
 
         if (!response.ok) {
-            throw new Error(data.error || "Failed to fetch address");
-        }
-
-        return data;
-    }
-
-    static async getProfile(token: string): Promise<{ user: User }> {
-        const response = await fetch(`${API_BASE_URL}/profile`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-            },
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data.error || "Failed to fetch profile");
+            throw new Error(data.error || "Failed to fetch addresses");
         }
 
         return data;

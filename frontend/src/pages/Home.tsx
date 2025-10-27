@@ -7,7 +7,7 @@ import { Outlet, useLocation } from "react-router-dom";
 const Home = () => {
     const location= useLocation()
     const currentPath=location.pathname;
-      const hideCategoryBar = ["/checkout", "/orders", "/cart"].includes(
+      const hideCategoryBar = ["/checkout", "/orders", "/cart","/payment-cashier"].includes(
           currentPath
       );
     

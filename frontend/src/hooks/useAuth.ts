@@ -46,20 +46,20 @@ export const useAuth = () => {
     const isAdmin = user?.role === "ADMIN";
 
     return {
-        // State
+
         isAuthenticated,
         user,
         token,
         isLoading,
         error,
 
-        // Actions
+
         register,
         login,
         logout: logoutUser,
         clearError: clearAuthError,
 
-        // Helpers
+
         isSeller,
         isAdmin,
     };

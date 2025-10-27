@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2, MinusIcon, PlusIcon, TrashIcon } from "lucide-react";
 
 import ProductComponent from "@/components/products/ProductComponent";
+import { Input } from "@/components/ui/input";
 import type { AppDispatch } from "@/store";
 import {
     removeFromCart,
@@ -73,6 +74,7 @@ const CartPage = () => {
                 newSelectedItems[item.id] = true;
             });
         }
+        console.log(newSelectedItems, "this is new selectedItems");
         setSelectedItems(newSelectedItems);
     };
 
@@ -145,7 +147,7 @@ const CartPage = () => {
             console.error("Failed to delete items:", error);
         }
     };
-
+    console.log(selectAll, "selectallis this");
     const handleCheckout = () => {
         if (selectedItemsCount === 0) {
             alert("Please select at least one item to checkout");
@@ -156,6 +158,7 @@ const CartPage = () => {
                 selectedItems: cartItems.filter(
                     (item) => selectedItems[item.id]
                 ),
+                
             },
         });
     };
@@ -195,13 +198,12 @@ const CartPage = () => {
     }
 
     return (
-        <div className="lg:max-w-7xl max-w-2xl h-screen mx-auto p-6 grid grid-cols-1 lg:grid-cols-3  ">
-            {/* Left Section */}
+        <div className="lg:max-w-7xl  h-screen mx-auto p-6 grid grid-cols-1 lg:grid-cols-3  ">
             <div className="lg:col-span-2 space-y-4 lg:mx-10">
                 {/* Header */}
                 <div className="flex items-center justify-between bg-[#ffff] p-4 rounded-xl shadow-sm">
                     <div className="flex items-center gap-2">
-                        <input
+                        <Input
                             type="checkbox"
                             checked={selectAll}
                             onChange={(e) => handleSelectAll(e.target.checked)}
@@ -270,6 +272,7 @@ const CartPage = () => {
                                 ? item.product.price
                                 : displayPrice;
                             const hasDiscount =
+
                                 item.product.salePrice &&
                                 item.product.salePrice < item.product.price;
 
@@ -340,7 +343,6 @@ const CartPage = () => {
                 ))}
             </div>
 
-
             <div className="bg-white rounded-xl shadow p-6 h-fit border border-gray-200 sticky top-6">
                 <h2 className="text-lg font-semibold mb-4 border-b pb-2">
                     Order Summary
@@ -368,7 +370,6 @@ const CartPage = () => {
                 >
                     Proceed to Checkout ({selectedItemsCount})
                 </Button>
-
 
                 <Button
                     variant="outline"

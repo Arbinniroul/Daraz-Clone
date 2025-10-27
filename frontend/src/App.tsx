@@ -11,6 +11,9 @@ import CartPage from "./pages/customer/cart/CartPage";
 import type { AppDispatch, RootState } from "./store";
 import { fetchCart } from "./store/slices/cartSlice";
 import CheckoutPage from "./pages/customer/checkout/checkout";
+import PaymentCashier from "./pages/customer/payment/PaymentCashier";
+import Checkout from "./pages/customer/payment/PaymentCheckout";
+import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 
 const useAppInitializer = () => {
     const dispatch = useDispatch<AppDispatch>();
@@ -47,6 +50,23 @@ function App() {
                 <Route path="/allproducts" element={<AllProductsPage />} />
                 <Route path="/cart" element={<CartPage />} />
                 <Route path="/checkout" element={<CheckoutPage />} />
+                <Route path="/payment-cashier" element={<PaymentCashier />} />
+                <Route
+                    path="/pay"
+                    element={
+                        <PayPalScriptProvider
+                            options={{
+                                
+                                "data-client-token": "",
+                                
+                                currency: "USD",
+                            }}
+                            deferLoading={true} 
+                        >
+                            <Checkout />
+                        </PayPalScriptProvider>
+                    }
+                />
             </Route>
         </Routes>
     );

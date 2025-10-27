@@ -8,19 +8,20 @@ import { getAddresses } from "@/store/thunks/authThunks";
 import type { Address, CartItem } from "@/types";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const CheckoutPage = () => {
     const location = useLocation();
     const { selectedItems } = location.state || { selectedItems: [] };
     console.log(selectedItems, "loaded");
-
     const [selectedAddress, setSelectedAddress] = useState<Address | null>(
         null
     );
     const dispatch = useDispatch<AppDispatch>();
     const { user } = useSelector((state: RootState) => state.auth);
     const { addresses } = useSelector((state: RootState) => state.address);
+    const navigate=useNavigate()
+
 
     const normalizedItems = (() => {
         if (!selectedItems) return [];
@@ -88,12 +89,24 @@ const CheckoutPage = () => {
             .toFixed(0)
     );
 
-    const deliveryFee = 143;
+
+    const deliveryFee = 1.45;
+    const total=totalItemsPrice+deliveryFee
 
     const handleAddressSelect = (address: Address) => {
         console.log("Address selected:", address);
         setSelectedAddress(address);
     };
+    const quantity=normalizedItems.map((items)=>items.quantity)
+        const handlePay = () => {
+            navigate("/payment-cashier", {
+                state: {
+                    quantity,
+                    total,
+                    normalizedItems,
+                },
+            });
+        };
 
     if (!normalizedItems || normalizedItems.length === 0) {
         return (
@@ -107,7 +120,7 @@ const CheckoutPage = () => {
     }
 
     return (
-        <div className=" w-full ">
+        <div className=" w-full  ">
             <div className="w-full mx-auto max-w-7xl 2xl:mx-56 lg:px-10">
                 <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
                     <div className="grid lg:col-span-2">
@@ -173,7 +186,7 @@ const CheckoutPage = () => {
                                                             className="size-4 my-1 has-checked:bg-[#0094b7]"
                                                         />
                                                         <div className="gap-2 flex flex-col justify-center">
-                                                            <span>$143</span>
+                                                            <span>${deliveryFee}</span>
                                                             <div className="flex flex-col gap-2">
                                                                 <span>
                                                                     Standard
@@ -255,7 +268,7 @@ const CheckoutPage = () => {
                                     <div className="flex justify-between border-t border-gray-200 pt-4 text-sm">
                                         <span className="flex-1">Total</span>
                                         <span className="text-base text-[#f65407]">
-                                            ${deliveryFee + totalItemsPrice}
+                                            ${total}
                                         </span>
                                     </div>
                                     <div className="flex justify-end text-xs text-gray-500">
@@ -264,6 +277,7 @@ const CheckoutPage = () => {
                                     <Button
                                         className="w-full bg-[#f47324] text-white hover:bg-[#e3661d]"
                                         disabled={!selectedAddress}
+                                        onClick={handlePay}
                                     >
                                         {selectedAddress
                                             ? "Proceed to Pay"

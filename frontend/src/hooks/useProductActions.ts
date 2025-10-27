@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 interface UseProductActionsReturn {
     handleAddToCart: (productId: string, quantity?: number) => Promise<boolean>;
-    handleBuyNow: (product: ProductWithPricing) => Promise<boolean>;
+    handleBuyNow: (product: ProductWithPricing,quantity:number) => Promise<boolean>;
     isAddingToCart: boolean;
     isBuyingNow: boolean;
 }
@@ -37,7 +37,7 @@ export const useProductActions = (): UseProductActionsReturn => {
     );
 
     const handleBuyNow = useCallback(
-        async (product: ProductWithPricing): Promise<boolean> => {
+        async (product: ProductWithPricing,quantity:number): Promise<boolean> => {
             if (!isAuthenticated) {
                 handleAuthRedirect("buy-now", product.id);
                 return false;
@@ -48,16 +48,18 @@ export const useProductActions = (): UseProductActionsReturn => {
             try {
                
                 const cartItem = {
-                    id: `buynow-${product.id}-${Date.now()}`, // Unique ID
-                    quantity: 1,
+                    id: `buynow-${product.id}-${Date.now()}`, 
+                    quantity: quantity,
                     product: product,
                     productId: product.id,
-                    cartId: `temp-cart-${product.id}`, // Temporary cart ID
-                };
+                    cartId: `temp-cart-${product.id}`, 
+                }
+                 
 
                 navigate("/checkout", {
                     state: {
-                        selectedItems: [cartItem], // Send as array with proper structure
+                        selectedItems: [cartItem],
+                         
                     },
                 });
                 return true;
@@ -68,7 +70,7 @@ export const useProductActions = (): UseProductActionsReturn => {
                 setIsBuyingNow(false);
             }
         },
-        [isAuthenticated, handleAuthRedirect, dispatch, navigate]
+        [isAuthenticated, handleAuthRedirect, navigate]
     );
     const handleAddToCart = useCallback(
         async (productId: string, quantity: number = 1): Promise<boolean> => {

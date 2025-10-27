@@ -24,7 +24,7 @@ const AddressContainer: React.FC<AddressContainerProps> = ({ address }) => {
             </div>
 
             <div className="text-sm text-gray-600 space-y-1">
-                <div className="capitalize text-gray-500">
+                <div className="capitalize px-4 text-lg w-fit  py-1 rounded-md text-white bg-blue-600">
                     {address.location.toLowerCase()}
                 </div>
                 <div>{address.street}</div>

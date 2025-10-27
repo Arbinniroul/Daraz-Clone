@@ -27,7 +27,7 @@ const ProductPage = () => {
         if (!currentProduct) return;
 
         if (isAuthenticated) {
-            await handleBuyNow(currentProduct);
+            await handleBuyNow(currentProduct,quantity);
         } else {
             setIsAuthValue("login");
         }
@@ -60,7 +60,7 @@ const ProductPage = () => {
         }
     }, [dispatch, id]);
 
-    // Reset quantity when product changes
+    
     useEffect(() => {
         setQuantity(1);
     }, [currentProduct?.id]);
@@ -101,7 +101,7 @@ const ProductPage = () => {
         <div className="container lg:px-50 mx-auto py-10">
             <div className="mx-auto shadow-lg px-6 py-8 lg:px-10 lg:py-10">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {/* Product Images */}
+                    
                     <div className="space-y-4">
                         <div className="aspect-square overflow-hidden rounded-lg border bg-gray-50">
                             <img
@@ -122,7 +122,7 @@ const ProductPage = () => {
                                         key={index}
                                         className="aspect-square overflow-hidden rounded border bg-gray-50 cursor-pointer hover:border-blue-500 transition-colors"
                                         onClick={() => {
-                                            // You can implement image gallery navigation here
+                                            
                                         }}
                                     >
                                         <img

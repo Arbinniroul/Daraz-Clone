@@ -40,4 +40,5 @@ export const addressSchema = z.object({
 // Infer TypeScript types from Zod schemas
 
 export type ProductForm = z.infer<typeof productSchema>;
+export type AuthSchema = z.infer<typeof authSchema>;
 export type AddressForm = z.infer<typeof addressSchema>;

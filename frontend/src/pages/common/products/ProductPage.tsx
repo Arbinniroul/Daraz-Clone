@@ -4,6 +4,7 @@ import { useProductActions } from "@/hooks/useProductActions";
 import { type AppDispatch, type RootState } from "@/store";
 
 import { fetchProduct } from "@/store/slices/productSlice";
+
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
@@ -26,7 +27,7 @@ const ProductPage = () => {
         if (!currentProduct) return;
 
         if (isAuthenticated) {
-            await handleBuyNow(currentProduct.id, quantity);
+            await handleBuyNow(currentProduct);
         } else {
             setIsAuthValue("login");
         }

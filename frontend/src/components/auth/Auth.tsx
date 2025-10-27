@@ -39,7 +39,7 @@ const Auth = ({ onSubmit, isAuthValue, setIsAuthValue, form }: AuthProps) => {
             >
                 <DialogContent className="sm:max-w-[425px] bg-[#ffffff] border-none">
                     {isAuthValue === "login" ? (
-                        <div>
+                    <div>
                             <DialogHeader>
                                 <DialogTitle>Login</DialogTitle>
 

@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Loader2, MinusIcon, PlusIcon, TrashIcon } from "lucide-react";
 
+import ProductComponent from "@/components/products/ProductComponent";
 import type { AppDispatch } from "@/store";
 import {
     removeFromCart,
@@ -11,8 +12,6 @@ import {
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import ProductComponent from "@/components/products/ProductComponent";
-
 
 // Types
 interface CartItem {
@@ -48,7 +47,6 @@ const CartPage = () => {
     const [selectedItems, setSelectedItems] = useState<SelectedItems>({});
     const [selectAll, setSelectAll] = useState<boolean>(false);
 
-
     useEffect(() => {
         localStorage.setItem(
             "cart-selected-items",
@@ -67,7 +65,6 @@ const CartPage = () => {
     const selectedItemsCount =
         Object.values(selectedItems).filter(Boolean).length;
 
-    // Handle select all
     const handleSelectAll = (checked: boolean) => {
         setSelectAll(checked);
         const newSelectedItems: SelectedItems = {};
@@ -79,7 +76,6 @@ const CartPage = () => {
         setSelectedItems(newSelectedItems);
     };
 
-    // Handle individual item selection
     const handleItemSelect = (itemId: string, checked: boolean) => {
         setSelectedItems((prev) => ({
             ...prev,
@@ -87,7 +83,6 @@ const CartPage = () => {
         }));
     };
 
-    // Update select all when individual items change
     useEffect(() => {
         const allSelected =
             cartItems.length > 0 &&
@@ -162,8 +157,6 @@ const CartPage = () => {
                     (item) => selectedItems[item.id]
                 ),
             },
-            
-           
         });
     };
 
@@ -202,7 +195,7 @@ const CartPage = () => {
     }
 
     return (
-        <div className="max-w-7xl h-screen mx-auto p-6 grid grid-cols-1 lg:grid-cols-3  ">
+        <div className="lg:max-w-7xl max-w-2xl h-screen mx-auto p-6 grid grid-cols-1 lg:grid-cols-3  ">
             {/* Left Section */}
             <div className="lg:col-span-2 space-y-4 lg:mx-10">
                 {/* Header */}
@@ -296,8 +289,14 @@ const CartPage = () => {
                                         }
                                         className="w-4 h-4 text-blue-600 rounded"
                                     />
-                              
-                                      <ProductComponent  item={item} displayPrice={displayPrice} originalPrice={originalPrice} hasDiscount={hasDiscount} handleRemoveItem={handleRemoveItem}/>
+
+                                    <ProductComponent
+                                        item={item}
+                                        displayPrice={displayPrice}
+                                        originalPrice={originalPrice}
+                                        hasDiscount={hasDiscount}
+                                        handleRemoveItem={handleRemoveItem}
+                                    />
 
                                     <div className="flex items-center gap-2 border rounded-md px-2">
                                         <button
@@ -341,7 +340,7 @@ const CartPage = () => {
                 ))}
             </div>
 
-            {/* Right Section - Order Summary */}
+
             <div className="bg-white rounded-xl shadow p-6 h-fit border border-gray-200 sticky top-6">
                 <h2 className="text-lg font-semibold mb-4 border-b pb-2">
                     Order Summary
@@ -352,15 +351,13 @@ const CartPage = () => {
                         Subtotal ({selectedItemsCount} item
                         {selectedItemsCount !== 1 ? "s" : ""})
                     </span>
-                    <span>Rs. {selectedItemsTotal.toFixed(2)}</span>
+                    <span>$ {selectedItemsTotal.toFixed(2)}</span>
                 </div>
-
-             
 
                 <div className="flex justify-between font-semibold text-lg mb-4 border-t pt-4">
                     <span>Total</span>
                     <span className="text-orange-600">
-                        Rs. {selectedItemsTotal.toFixed(2)}
+                        $ {selectedItemsTotal.toFixed(2)}
                     </span>
                 </div>
 
@@ -372,7 +369,7 @@ const CartPage = () => {
                     Proceed to Checkout ({selectedItemsCount})
                 </Button>
 
-                {/* Clear cart button */}
+
                 <Button
                     variant="outline"
                     className="w-full mt-3 text-red-500 border-red-200 hover:bg-red-50"

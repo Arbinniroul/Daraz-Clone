@@ -17,7 +17,7 @@ export const register = async (req, res) => {
         }
 
 
-        // Check if user exists
+
         const existingUser = await prisma.user.findFirst({
             where: {
                 OR: [{ email }, { username }],
@@ -30,10 +30,10 @@ export const register = async (req, res) => {
             });
         }
 
-        // Hash password
+
         const hashedPassword = await bcrypt.hash(password, 12);
 
-        // Create user
+
         const user = await prisma.user.create({
             data: {
                 email,
@@ -52,7 +52,7 @@ export const register = async (req, res) => {
             },
         });
 
-        // Generate token
+
         const token = generateToken(user.id);
 
         res.status(201).json({
@@ -72,7 +72,7 @@ export const login = async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        // Find user
+
         const user = await prisma.user.findUnique({
             where: { email },
             include: { profile: true },
@@ -81,7 +81,7 @@ export const login = async (req, res) => {
         if (!user || !(await bcrypt.compare(password, user.password))) {
             return res.status(401).json({
                 error: "Invalid email or password",
-            });
+            }); 
         }
 
         // Generate token

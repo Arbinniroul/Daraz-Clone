@@ -11,7 +11,7 @@ const router = express.Router();
 
 router.put("/profile", auth, updateProfile);
 router.post("/become-seller", auth, becomeSeller);
-router.post("/addresses", auth, addAddress);
-router.get("/addresses", auth, getAddresses);
+router.post("/add/address", auth, addAddress);
+router.get("/get/address/:id", auth, getAddresses);
 
 export default router;

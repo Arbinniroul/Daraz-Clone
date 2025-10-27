@@ -13,7 +13,7 @@ const Home = () => {
     
 
     return (
-        <div className="relative max-w-screen bg-[#eff0f4] ">
+        <div className=" min-h-screen   bg-[#eff0f4] ">
             <Navbar />
             {hideCategoryBar && <CategoryBar />}
             <Outlet />

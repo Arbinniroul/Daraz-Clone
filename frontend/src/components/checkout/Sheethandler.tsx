@@ -16,13 +16,12 @@ import {
 import type { Address } from "@/types";
 import { useState, useEffect } from "react";
 import { Button } from "../ui/button";
-import { Checkbox } from "../ui/checkbox";
 import AddressContainer from "./address/addressContainer";
 import AddressFormContainer from "./AddressForm";
 
 interface SheethandlerProps {
     addresses: Address[];
-    onAddressSelect?: (address: Address | null) => void;
+    onAddressSelect?: (address: Address) => void;
     selectedAddress?: Address | null;
 }
 
@@ -38,7 +37,6 @@ export const Sheethandler: React.FC<SheethandlerProps> = ({
             externalSelectedAddress || addresses?.[0] || null
         );
 
-
     useEffect(() => {
         if (externalSelectedAddress) {
             setInternalSelectedAddress(externalSelectedAddress);
@@ -50,8 +48,7 @@ export const Sheethandler: React.FC<SheethandlerProps> = ({
     };
 
     const handleSave = () => {
-
-        if (onAddressSelect) {
+        if (onAddressSelect && internalSelectedAddress) {
             onAddressSelect(internalSelectedAddress);
         }
         setOpenSheet(false);
@@ -62,7 +59,6 @@ export const Sheethandler: React.FC<SheethandlerProps> = ({
         setOpenDialog(true);
     };
 
-    
     return (
         <div>
             <Sheet open={openSheet} onOpenChange={setOpenSheet}>
@@ -92,21 +88,28 @@ export const Sheethandler: React.FC<SheethandlerProps> = ({
                                 {addresses?.map((address, index) => (
                                     <div
                                         key={address.id || index}
-                                        className="border rounded-lg px-3 py-2 cursor-pointer hover:bg-gray-50 transition-colors"
+                                        className={`border rounded-lg px-3 py-2 cursor-pointer transition-colors ${
+                                            internalSelectedAddress?.id ===
+                                            address.id
+                                                ? "border-[#0e9ab9] bg-blue-50"
+                                                : "border-gray-200 hover:bg-gray-50"
+                                        }`}
                                         onClick={() =>
                                             handleAddressSelect(address)
                                         }
                                     >
                                         <div className="flex gap-4 items-start">
-                                            <Checkbox
+                                            <input
+                                                type="radio"
+                                                name="address-selection"
                                                 checked={
                                                     internalSelectedAddress?.id ===
                                                     address.id
                                                 }
-                                                onCheckedChange={() =>
+                                                onChange={() =>
                                                     handleAddressSelect(address)
                                                 }
-                                                className="mt-1"
+                                                className="mt-1 w-4 h-4 text-blue-600 focus:ring-blue-500"
                                             />
                                             <AddressContainer
                                                 address={address}
@@ -126,6 +129,7 @@ export const Sheethandler: React.FC<SheethandlerProps> = ({
                                 <Button
                                     onClick={handleSave}
                                     className="bg-[#0e9ab9] hover:bg-[#0c8aa6] text-white"
+                                    disabled={!internalSelectedAddress}
                                 >
                                     Save Address
                                 </Button>
@@ -144,7 +148,6 @@ export const Sheethandler: React.FC<SheethandlerProps> = ({
                         <DialogDescription>
                             <AddressFormContainer
                                 setOpenDialog={setOpenDialog}
-                            
                             />
                         </DialogDescription>
                     </DialogHeader>

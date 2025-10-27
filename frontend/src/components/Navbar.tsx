@@ -11,7 +11,7 @@ import { useForm } from "react-hook-form";
 
 import type { AppDispatch, RootState } from "@/store";
 import { loginUser, registerUser } from "@/store/thunks/authThunks";
-import { authSchema, type AuthSchema } from "@/types";
+import { authSchema,type AuthSchema } from "@/types";
 import { useDispatch, useSelector } from "react-redux";
 
 import { useAuth } from "@/contexts/AuthContext";
@@ -52,7 +52,6 @@ const Navbar = () => {
         if (savedTotal) {
             const savedCount = Number(savedTotal);
             setBadgeCount(savedCount);
-
         }
     }, []);
 
@@ -60,7 +59,6 @@ const Navbar = () => {
         if (totalCartItems >= 0) {
             setBadgeCount(totalCartItems);
             localStorage.setItem("TotalCartItems", totalCartItems.toString());
-           
         }
     }, [totalCartItems]);
 
@@ -97,7 +95,8 @@ const Navbar = () => {
                 console.log("Signup clicked ");
                 await dispatch(registerUser(values)).unwrap();
                 setIsAuthValue("");
-            } else {
+            }
+            if (isAuthValue === "login") {
                 console.log("Loggin clicked");
                 await dispatch(
                     loginUser({
@@ -115,7 +114,7 @@ const Navbar = () => {
         }
     }
     return (
-        <div className="max-w-screen">
+        <div className="min-w-screen">
             <div className=" bg-[#f75506] h-30 hidden xl:block">
                 <nav className="max-w-7xl mx-auto flex items-center justify-end px-4">
                     <ul className="flex space-x-6 text-white  text-xs cursor-pointer py-2">

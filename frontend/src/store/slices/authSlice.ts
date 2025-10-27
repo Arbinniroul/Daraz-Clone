@@ -58,7 +58,7 @@ const authSlice = createSlice({
             state.error = null;
         },
 
-        // Additional actions for manual token management
+ 
         setToken: (state, action: PayloadAction<string>) => {
             state.token = action.payload;
             state.isAuthenticated = true;
@@ -77,7 +77,7 @@ const authSlice = createSlice({
         },
     },
     extraReducers: (builder) => {
-        // Register cases
+       
         builder
             .addCase(registerUser.pending, (state) => {
                 state.isLoading = true;
@@ -118,7 +118,7 @@ const authSlice = createSlice({
                 }
             })
 
-            // Login cases
+           
             .addCase(loginUser.pending, (state) => {
                 state.isLoading = true;
                 state.error = null;

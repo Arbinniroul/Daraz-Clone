@@ -64,10 +64,25 @@ export const becomeSeller = async (req, res) => {
 
 export const addAddress = async (req, res) => {
     try {
-        const { street, city, state, country, zipCode, isDefault } = req.body;
+        const {
+            street,
+            city,
+            phonenumber,
+            state,
+            country,
+            zipCode,
+            location,
+            isDefault,
+            name,
+        } = req.body;
+
+        if (!street || !city || !state || !country || !zipCode || !location) {
+            return res
+                .status(400)
+                .json({ error: "All address fields are required" });
+        }
 
         if (isDefault) {
-            // Remove default from other addresses
             await prisma.address.updateMany({
                 where: { userId: req.userId },
                 data: { isDefault: false },
@@ -76,12 +91,15 @@ export const addAddress = async (req, res) => {
 
         const address = await prisma.address.create({
             data: {
+                name,
                 street,
+                phonenumber,
                 city,
                 state,
                 country,
                 zipCode,
-                isDefault: isDefault || false,
+                location: location.toUpperCase(),
+                isDefault: !!isDefault,
                 userId: req.userId,
             },
         });
@@ -91,6 +109,7 @@ export const addAddress = async (req, res) => {
             address,
         });
     } catch (error) {
+        console.error(error);
         res.status(500).json({
             error: "Failed to add address",
             details: error.message,
@@ -100,14 +119,17 @@ export const addAddress = async (req, res) => {
 
 export const getAddresses = async (req, res) => {
     try {
+        const {id}=req.params;
         const addresses = await prisma.address.findMany({
-            where: { userId: req.userId },
+            where: { userId:id },
+            orderBy: { isDefault: "desc" },
         });
 
-        res.json({ addresses });
+        res.status(200).json({ addresses });
     } catch (error) {
+        console.error(error);
         res.status(500).json({
-            error: "Failed to fetch addresses",
+            error: "Failed to retrieve addresses",
             details: error.message,
         });
     }
